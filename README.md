@@ -7,7 +7,7 @@ RDA-forest is designed to identify associations between principal coordinates of
 
 > NOTE on sampling design for GEA: It is necessary to maximize the number of sampled locations, with just a few (or even just one) sample per location. I mean, instead of sampling 50 individuals from 2 locations (a typical design for Fst-based genome scanning), sample 2 individuals from 50 locations.
 
-The method relies on 'gradientForest' package for R, which is extension of random forest methodology to multiple response variables. It has been developed to analyze ecological community data, but is perfectly fine for any problem that can be viewed as association analysis between two matrices, such as genontype-environment association (as we do here) or gene expression analysis with multiple potential influencing factors (a particular case of which could be explaining the expression of WGCNA modules).  
+The method relies on 'gradientForest' package for R, which is extension of random forest methodology to multiple response variables. It has been developed to analyze ecological community data, but is perfectly fine for any problem that is about finding associations between two matrices, such as genontype-environment association (as we do here) or gene expression analysis with multiple potential influencing factors. A particular case of the latter would be explaining the expression of WGCNA modules.  
 
 ## Suggested readings (if you never worked gradient forest or random forest):
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
