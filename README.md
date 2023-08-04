@@ -1,5 +1,5 @@
 # RDA-forest
-association analysis of distance matrices using gradient forest approach
+## association analysis of distance matrices using gradient forest approach
 
 Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
 
