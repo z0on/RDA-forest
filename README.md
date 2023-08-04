@@ -1,5 +1,5 @@
 # RDA-forest
-## using gradient forest for genotype-environment association analysis of distance matrices
+## gradient forest for genotype-environment association analysis of a genetic distance matrix
 
 Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
 
