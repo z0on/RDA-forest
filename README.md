@@ -1,24 +1,24 @@
 # RDA-forest
-## application of gradient forest for genotype-environment association analysis of genetic distance matrices
+## application of gradient forest to analyze principal components
 
 Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
 
-RDA-forest is designed to identify associations between principal coordinates of a distance matrx *Y* and a matrix of potential explanatory variables *X*. While the metod is applicable to any problem that can be formulated in that way, in the example here *Y* is the identity-by-state (IBS) matrix derived from reduced-representation sequencing (i.e., RAD and its flavors), and *X* is a matrix of environmental variables measured for samples in *Y*. Unlike most other GEA approaches, we are not trying to find specific loci associated with environment. Instead, we leverage the polygenic nature of adaptation and look for clusters, extensions, and bumps in the multivariate cloud of points (samples) defined by the genetic distance matrix that can be explained by certain environmental variables. The most fundamental underlying assumption is that adaptation to specific conditions make organisms slightly more similar to each other, genome-wide, than to their peers living in a different environment. The goal is to identify the environmental gradients that drive this subtle genetic structure.
+RDA-forest finds associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*, so what we are doing is a genotype-environment association (GEA) analysis. Unlike most other GEA methods, we are not trying to find specific loci associated with environment. Instead, we leverage the polygenic nature of adaptation and look for clusters, extensions, and bumps in the multivariate cloud of points (individuals) defined by the genetic distance matrix that can be explained by certain environmental variables. The most fundamental underlying assumption is that adaptation to specific conditions make organisms slightly more similar to each other, genome-wide, than to their peers living in a different environment. We aim to identify environmental gradients driving this subtle genetic structure.
 
-> NOTE on sampling design for GEA: It is necessary to maximize the number of sampled locations, with just a few (or even just one) sample per location. I mean, instead of sampling 50 individuals from 2 locations (a typical design for Fst-based genome scanning), sample 2 individuals from 50 locations.
+> NOTE on terminology: For purely historical reasons, Principal Component Analysis of a distance matrix is called a Principal Coordinates Analysis, and its principal components are called, correspondingly, "principal coordinates". Their mathematical meaning is essentially the same as principal components so we will be calling them thus throughout this vignette, to keep it simple. 
 
 ## Overview ##
 
-The method relies on `gradientForest` package in R, which is extension of the random forest approach to multiple response variables. Its main advantags over "previous generation" regression-based GEA methods are:
-- identifies linear and all sorts of non-linear relationships
-- automatically accounts for all possible interactions between predictors
-- uses proper cross-validation to compute importance of predictors
-The idea here is to apply `gradientForest` to principal coordinates of a distance matrix.
+The method relies on `gradientForest` package in R, which is extension of the random forest approach to multiple response variables. Its main advantags over more typical regression-based GEA methods are:
+- it identifies linear and all sorts of non-linear relationships
+- it automatically accounts for all possible interactions between predictors
+- it uses proper cross-validation to compute importance of predictors
 
 There are two novel ideas implemented within the main `RDAforest` function here:
-- It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of the principal coordinates. The analysis is run N times (N = 25 is reasonable) each time rotating the cloud of points (defined by the distance matrix) in a random direction and re-forming the principal coordinates to be orthogonal to that direction. The rotation procedure is essentially redundancy analysis (RDA) using random predictor, hence the name "RDA forest".
+- It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of the principal components. The analysis is run N times (N = 25 is reasonable) each time rotating the cloud of points (defined by the distance matrix) in a random direction and re-forming the principal coordinates to be orthogonal to that direction. The rotation procedure is essentially redundancy analysis (RDA) using random predictor, hence the name "RDA forest".
 - To remove predictors that are not by themselves important but are correlated with important ones, we run not one but two gradient forest analyses on each spatial bootstrap replicate, with different values of `mtry`. `mtry` is the number of randomly chosen predictors to find the next split in the tree. Simulations show (Strobl et al 2008) that with higher `mtry` predictors that are "standing-in" for the truly important ones decrease in importance because there is a higher chance that the actual important predictor will also be picked. We compare importances of each variable at two `mtry` values, 0.25 **p* and 0.375**p*, where *p* is the total number of predictors (`mtry` is *p*/3 by default). We then discard variables that show diminishing importance at higher `mtry` in more than half of all spatial bootstrap replicates.
 
+> NOTE on sampling design for GEA: It is necessary to maximize the number of sampled locations, with just a few (or even just one) sample per location. I mean, instead of sampling 50 individuals from 2 locations (a typical design for Fst-based genome scanning), sample 2 individuals from 50 locations.
 
 ## Suggested readings:
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
