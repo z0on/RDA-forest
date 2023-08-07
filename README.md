@@ -20,7 +20,7 @@ There are two non-trivial ideas in the RDA-forest approach:
 
 > NOTE on sampling design for GEA: It is necessary to maximize the number of sampled locations, with just a few (or even just one) sample per location. I mean, instead of sampling 50 individuals from 2 locations (a typical design for Fst-based genome scanning), sample 2 individuals from 50 locations.
 
-## Suggested readings:
+## Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
 - `death00_classification_regression_trees.pdf` : great intro into regression trees, for ecological data
 - `ellis_gradient_forest.pdf` : dense but very comprehensive outline of the gradient forest approach
