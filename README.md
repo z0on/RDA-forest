@@ -15,8 +15,8 @@ The method relies on `gradientForest` package in R, which is extension of the ra
 - it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
 There are two novel ideas implemented within the main `RDAforest` function here:
-- It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of the principal components. The analysis is run N times (N = 25 is reasonable) each time rotating the cloud of points (defined by the distance matrix) in a random direction and re-forming the principal components to be orthogonal to that direction.
-- To remove predictors that are not by themselves important but are correlated with important ones, we run not one but two gradient forest analyses on each spatial bootstrap replicate, with different values of `mtry`. `mtry` is the number of randomly chosen predictors to find the next split in the tree. Simulations show (Strobl et al 2008) that with higher `mtry` predictors that are "standing-in" for the truly important ones decrease in importance because there is a higher chance that the actual important predictor will also be picked. We compare importances of each variable at two `mtry` values, 0.25 **p* and 0.375**p*, where *p* is the total number of predictors (`mtry` is *p*/3 by default). We then discard variables that show diminishing importance at higher `mtry` in more than half of all spatial bootstrap replicates.
+- It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of principal components. The analysis is repeated multiple times, each time rotating the cloud of points (defined by the distance matrix) in a random direction and re-forming the principal components to be orthogonal to that direction.
+- To detect and discard predictors that are not by themselves important but are correlated with important ones, we run not one but two gradient forest analyses on each spatial bootstrap replicate, with different values of `mtry`. `mtry` is the number of randomly chosen predictors to find the next split in the tree. Simulations show (Strobl et al 2008) that with higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used for tree splitting less frequently, which drives its importance down. To use this criterion, we fit two models with different `mtry` settings to each spatial bootstrap replicate. Predictors showing diminished raw importance at the higher `mtry` setting in more than half of all replicates are then discarded.
 
 > NOTE on sampling design for GEA: It is necessary to maximize the number of sampled locations, with just a few (or even just one) sample per location. I mean, instead of sampling 50 individuals from 2 locations (a typical design for Fst-based genome scanning), sample 2 individuals from 50 locations.
 
@@ -27,7 +27,7 @@ There are two novel ideas implemented within the main `RDAforest` function here:
 -  vignette for the `gradientForest` package
 - `strobl_conditional_permutation.pdf` : deals with the problem of correlated predictors, contains simulations which are the basis for predictor selection method used here.
 
-## Installing *gradientForest* package in R  
+## Installing *gradientForest* package  
 
 Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
 
