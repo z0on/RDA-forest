@@ -10,9 +10,9 @@ RDA-forest finds associations between principal components of a response matrx *
 ## Overview ##
 
 The method relies on `gradientForest` package in R, which is extension of the random forest approach to multiple response variables. Its main advantags over more typical regression-based GEA methods are:
-- it identifies linear and all sorts of non-linear relationships
+- it identifies all sorts of non-linear relationships as well as linear ones
 - it automatically accounts for all possible interactions between predictors
-- it uses proper cross-validation to compute importance of predictors
+- it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
 There are two novel ideas implemented within the main `RDAforest` function here:
 - It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of the principal components. The analysis is run N times (N = 25 is reasonable) each time rotating the cloud of points (defined by the distance matrix) in a random direction and re-forming the principal components to be orthogonal to that direction.
