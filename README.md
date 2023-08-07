@@ -1,5 +1,5 @@
 # RDA-forest
-## application of random forest to analyze principal components
+## application of random forest to analyze principal components, including spatial bootstrap and predictor selection
 
 Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
 
@@ -14,7 +14,7 @@ The method relies on `gradientForest` package in R, which is extension of the ra
 - it automatically accounts for all possible interactions between predictors
 - it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
-There are two novel ideas implemented within the main `RDAforest` function here:
+There are two non-trivial ideas in the RDA-forest approach:
 - It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of principal components. The analysis is repeated multiple times, each time rotating the cloud of points (defined by the distance matrix) in a random direction and re-forming the principal components to be orthogonal to that direction.
 - To detect and discard predictors that are not by themselves important but are correlated with important ones, we run not one but two gradient forest analyses on each spatial bootstrap replicate, with different values of `mtry`. `mtry` is the number of randomly chosen predictors to find the next split in the tree. Simulations show (Strobl et al 2008) that with higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used for tree splitting less frequently, which drives its importance down. To use this criterion, we fit two models with different `mtry` settings to each spatial bootstrap replicate. Predictors showing diminished raw importance at the higher `mtry` setting in more than half of all replicates are then discarded.
 
