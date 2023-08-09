@@ -26,11 +26,15 @@ There are two non-trivial ideas in the RDA-forest approach:
 - `strobl_conditional_permutation_mtry.pdf` : deals with the problem of correlated predictors, contains simulations which are the basis for predictor selection method used here.
 - `bay18_songbird_science.pdf` : example application of gradient forest to predict bird adaptation and vulnerability to climate change
 
-## Installing *gradientForest* package  
+## Installation 
 
-Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
+The RDA-forest functions come in the form of an R package, `RDAforest_[version number].tar.gz`. To install it, run
+```R
+install.packages("/path/to/downloaded/file/RDAforest_0.0.0.9000.tar.gz")
+```
+The package depends on `vegan`, `dplyr`, `ggplot2`, and `gradientForest`. Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
 
-First, install **devtools**. 
+First, install `devtools`. 
 ```R
 install.packages("devtools")
 ```
@@ -39,9 +43,9 @@ Then:
 ```R
 install.packages("gradientForest", repos="http://R-Forge.R-project.org")
 ```
-If this one fails, chances are, you need to install **gfortran** first, FOR YOUR SYSTEM from here:
-https://gcc.gnu.org/wiki/GFortranBinaries or, for Mac, https://github.com/fxcoudert/gfortran-for-macOS/releases. If there is no precompiled **gfortran** for your combination of processor and OS, choose the one for the closest OS for your processor.
-On a Mac you might also need to point your Rstudio compiler to the location **gfortran** is installed at, by creating/modifying the file *~/.R/Makevars*. The following spell in **Terminal** should work:
+If this one fails, chances are, you need to install `gfortran` first, FOR YOUR SYSTEM from here:
+https://gcc.gnu.org/wiki/GFortranBinaries or, for Mac, https://github.com/fxcoudert/gfortran-for-macOS/releases. If there is no precompiled `gfortran` for your combination of processor and OS, choose the one for the closest OS for your processor.
+On a Mac you might also need to point your Rstudio compiler to the location `gfortran` is installed at, by creating/modifying the file *~/.R/Makevars*. The following spell in `Terminal` should work:
 ```sh
 cd
 mkdir .R
