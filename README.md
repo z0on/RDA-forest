@@ -57,6 +57,12 @@ All functions have brief documentation accessible as usual by asking `?functionN
 - `mtrySelection` : Performs variable selection based on *mtry* criterion: variables that are not important by themselves, only correlated with the actually important ones, begin to lose importance at higher *mtry* setting (Strobl et al 2018). The function runs *nreps* spatial bootstrap replicates on an ordination, fitting two *gradientForest* models with different *mtry* settings. It then selects variables that do not decrease in importance at higher *mtry*.
 - `spatialBootstrap` : Runs *gradientForest* on *nreps* ordination replicates, each time rotating the cloud of datapoints in a random direction and reforming principal axes to be orthogonal to that direction.
 
+## Example analysis
+
+The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. There are some preparatory stages, including examination of clonality/relatedness structure and forming of spatial variables to account for genetic correlation due to spatial proximity. Then we select influential variables using `mtrySelection` and measure their importance with `spatialBootstrap`. 
+![importances boxplot]
+Finally, use our new knowledge of how environment affects coral genetics to create a map of the coral's differential adaptation across the whole Florida Keys seascape.
+
 ## Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
 - `death00_classification_regression_trees.pdf` : great intro into regression trees, for ecological data
