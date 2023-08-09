@@ -23,7 +23,8 @@ There are two non-trivial ideas in the RDA-forest approach:
 - `death00_classification_regression_trees.pdf` : great intro into regression trees, for ecological data
 - `ellis_gradient_forest.pdf` : dense but very comprehensive outline of the gradient forest approach
 -  vignette for the `gradientForest` package
-- `strobl_conditional_permutation.pdf` : deals with the problem of correlated predictors, contains simulations which are the basis for predictor selection method used here.
+- `strobl_conditional_permutation_mtry.pdf` : deals with the problem of correlated predictors, contains simulations which are the basis for predictor selection method used here.
+- `bay18_songbird_science.pdf` : example application of gradient forest to predict bird adaptation and vulnerability to climate change
 
 ## Installing *gradientForest* package  
 
