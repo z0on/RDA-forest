@@ -52,10 +52,10 @@ library(gradientForest)
 ```
 ## RDAforest functions
 All functions have brief documentation accessible as usual by asking `?functionName` in R. There are four functions:
-- `makeGF.simple` : A simple wrapper for the `gradientForest()` function, uses straight-up response matrix `Y`.
-- `makeGF` : Runs gradient forest analysis on a `vegan` ordination object made by `capscale()` or `rda()`.
-- `mtrySelection` : Performs variable selection based on `mtry` criterion: variables that are not important by themselves but are correlated with actually important ones diminish in raw importance at higher mtry setting (Strobl et al 2018). The function runs `nreps` spatial bootstrap replicates on an ordination, fitting two `gradientForest` models with different `mtry` setting. It then selects variables that do not show decrease in importance at higher `mtry` in `prop.positive.cutoff` or more replicates.
-- `spatialBootstrap` : Runs `gradientForest` on `nreps` ordination replicates, each time rotating the cloud of datapoints in a random direction and reforming principal axes to be orthogonal to that direction.
+- `makeGF.simple` : A simple wrapper for the *gradientForest()* function, uses straight-up response matrix *Y*.
+- `makeGF` : Runs gradient forest analysis on an ordination object made by *vegan::capscale()* or *vegan::rda()*.
+- `mtrySelection` : Performs variable selection based on *mtry* criterion: variables that are not important by themselves but are correlated with actually important ones diminish in raw importance at higher mtry setting (Strobl et al 2018). The function runs *nreps* spatial bootstrap replicates on an ordination, fitting two *gradientForest* models with different *mtry* setting. It then selects variables that do not show decrease in importance at higher *mtry* in *prop.positive.cutoff* or more replicates.
+- `spatialBootstrap` : Runs *gradientForest* on *nreps* ordination replicates, each time rotating the cloud of datapoints in a random direction and reforming principal axes to be orthogonal to that direction.
 
 ## Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
