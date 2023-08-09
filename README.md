@@ -63,7 +63,7 @@ The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` co
 
 ![importances boxplot](importance_boxplot_nospace.png)
 
-Finally, use our new knowledge of how environment affects coral genetics to create a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify adaptation to factors highlighted in the legend.
+Finally, use our new knowledge of how environment affects coral genetics to create a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify differential adaptation, likely driven by factors highlighted in the legend.
 
 ![A.agaricites "yellow" lineage adaptation map](agaricia_yellow_rasterMap.png) 
 
