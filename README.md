@@ -60,8 +60,12 @@ All functions have brief documentation accessible as usual by asking `?functionN
 ## Example analysis
 
 The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. There are some preparatory stages, including examination of clonality/relatedness structure and forming of spatial variables to account for genetic correlation due to spatial proximity. Then we select influential variables using `mtrySelection` and measure their importance with `spatialBootstrap`. 
+
 ![importances boxplot](importance_boxplot_nospace.png)
+
 Finally, use our new knowledge of how environment affects coral genetics to create a map of the coral's differential adaptation across the whole Florida Keys seascape.
+
+![A.agaricites "yellow" lineage adaptation map](agaricia_yellow_rasterMap.png) 
 
 ## Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
