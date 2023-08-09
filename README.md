@@ -71,7 +71,7 @@ Finally, use our new knowledge of how environment affects coral genetics to crea
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
 - `death00_classification_regression_trees.pdf` : great intro into regression trees, for ecological data
 - `ellis_gradient_forest.pdf` : dense but very comprehensive outline of the gradient forest approach
--  vignette for the `gradientForest` package
+-  [vignette for the `gradientForest` package](https://gradientforest.r-forge.r-project.org/biodiversity-survey.pdf)
 - `strobl_conditional_permutation_mtry.pdf` : deals with the problem of correlated predictors, contains simulations which are the basis for predictor selection method used here.
 - `bay18_songbird_science.pdf` : example application of gradient forest to predict bird adaptation and vulnerability to climate change
 
