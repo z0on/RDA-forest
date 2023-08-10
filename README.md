@@ -22,7 +22,7 @@ In addition, there are two non-trivial ideas in our RDA-forest method:
 
 A histogram of how frequently raw importance increases at higher *mtry* across variables can help decide whether the data are strong enough to generate reliable result:
 
-![histogram_propPositive](histogram_propPositive.png) 
+![histogram_propPositive](histograms_propPositive.png) 
 
 ### Installation 
 
