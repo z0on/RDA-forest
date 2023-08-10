@@ -20,7 +20,7 @@ The method relies on `gradientForest` package in R, which is extension of the ra
 
 In addition, there are two non-trivial ideas in our RDA-forest method:
 - It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of principal components. The analysis is repeated multiple times, each time rotating the cloud of data points in a random direction and re-forming the principal components to be orthogonal to that direction.
-- To detect and discard predictors that are not by themselves important but are correlated with an important one, we use the `mtry`criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variablea and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down (Strobl et al 2008). So, we fit two models with different `mtry` settings to each spatial bootstrap replicate. Predictors showing diminished raw importance at the higher `mtry` setting in more than half of all replicates are discarded.
+- To detect and discard predictors that are not by themselves important but are correlated with an important one, we use the `mtry`criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down (Strobl et al 2008). So, we fit two models with different `mtry` settings to each spatial bootstrap replicate. Predictors showing diminished raw importance at the higher `mtry` setting in more than half of all replicates are discarded.
 
 A histogram of how frequently raw importance increases at higher *mtry* across variables can help decide whether the data are strong enough to generate reliable result:
 
@@ -28,7 +28,7 @@ A histogram of how frequently raw importance increases at higher *mtry* across v
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_[version number].tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_0.0.0.9000.tar.gz`. To install it, run this in Rstudio
 ```R
 install.packages("/path/to/downloaded/file/RDAforest_0.0.0.9000.tar.gz")
 library(RDAforest)
