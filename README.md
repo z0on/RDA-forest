@@ -53,7 +53,7 @@ To check if everything was intalled correctly, do this in Rstudio and see if the
 library(gradientForest)
 ```
 ### RDAforest functions
-All functions have brief documentation accessible as usual by asking `?functionName` in R. There are four functions:
+All functions have documentation accessible as usual by asking `?functionName` in R, for example to see what are the necessary arguments and what does the function return. There are four functions:
 - `makeGF.simple` : A simple wrapper for the *gradientForest()* function, uses straight-up response matrix *Y*.
 - `makeGF` : Runs gradient forest analysis on an ordination object made by *vegan::capscale()* or *vegan::rda()*.
 - `mtrySelection` : Performs variable selection based on *mtry* criterion: variables that are not important by themselves, only correlated with the actually important ones, begin to lose importance at higher *mtry* setting (Strobl et al 2018). The function runs *nreps* spatial bootstrap replicates on an ordination, fitting two *gradientForest* models with different *mtry* settings. It then selects variables that do not decrease in importance at higher *mtry*.
