@@ -3,7 +3,7 @@
 
 > Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
 
-RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. The method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are trying to solve broadly the same problem as redundancy analysis (RDA), only using random forest instead of linear regressions. 
+RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are trying to solve broadly the same problem as redundancy analysis (RDA), only using random forest instead of linear regressions. 
 
 ### Application to Genotype-Environment Association (GEA) analysis
 
