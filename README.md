@@ -1,13 +1,15 @@
 # RDA-forest
-## Application of random forest to analyze principal components, including spatial bootstrap and predictor selection
+## Using random forest to analyze shapes of multivariate datasets
 
 Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
 
-RDA-forest finds associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*, so what we are doing is a genotype-environment association (GEA) analysis. Unlike most other GEA methods, we are not trying to find specific loci associated with environment. Instead, we leverage the polygenic nature of adaptation and look for clusters, extensions, and bumps in the multivariate cloud of points (individuals) defined by the genetic distance matrix that can be explained by certain environmental variables. The underlying assumption is that adaptation to specific conditions make organisms slightly more similar to each other, genome-wide, than to their peers living in a different environment. We aim to identify environmental gradients driving this subtle genetic structure. The name "RDA forest" reflects the fact that we are trying to solve the same problem as redundancy analysis (RDA), only using random forest instead of linear regressions. 
+RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. The method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are trying to solve broadly the same problem as redundancy analysis (RDA), only using random forest instead of linear regressions. 
 
-> NOTE on terminology: For purely historical reasons, Principal Component Analysis of a distance matrix is called a Principal Coordinates Analysis, and its principal components are called, correspondingly, "principal coordinates". Their mathematical meaning is essentially the same as principal components so we will be calling them thus throughout this vignette, to keep it simple. 
+### Application to Genotype-Environment Association (GEA) analysis
 
-## Overview ##
+In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*. Unlike most other GEA methods, we are not trying to find specific loci associated with environment, but want to leverage the polygenic nature of adaptation to identify the variables that truly matter for our creatures. The fundamental assumption is that adaptation to the same conditions make organisms slightly more similar to each other, genome-wide, than to their peers living in a different environment. We aim to identify environmental gradients driving this subtle genetic structure. 
+
+### Overview
 
 The method relies on `gradientForest` package in R, which is extension of the random forest approach to multiple response variables (i.e., handles the whole *Y* response matrix rather than just a single response variable). Its main advantags over more typical regression-based GEA methods are:
 - it identifies all sorts of non-linear relationships as well as linear ones
@@ -18,7 +20,7 @@ There are two non-trivial ideas in the RDA-forest approach:
 - It uses "spatial bootstrap" to ensure that detected associations are not due to the chance configuration of principal components. The analysis is repeated multiple times, each time rotating the cloud of points (defined by the distance matrix) in a random direction and re-forming the principal components to be orthogonal to that direction.
 - To detect and discard predictors that are not by themselves important but are correlated with important ones, we run not one but two gradient forest analyses on each spatial bootstrap replicate, with different values of `mtry`. `mtry` is the number of randomly chosen predictors to find the next split in the tree. Wwith higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used for tree splitting less frequently, which drives its importance down (Strobl et al 2008). To use this criterion, we fit two models with different `mtry` settings to each spatial bootstrap replicate. Predictors showing diminished raw importance at the higher `mtry` setting in more than half of all replicates are then discarded.
 
-## Installation 
+### Installation 
 
 The RDA-forest functions come in the form of an R package, `RDAforest_[version number].tar.gz`. To install it, run this in Rstudio
 ```R
@@ -66,6 +68,8 @@ The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` co
 Finally, use our new knowledge of how environment affects coral genetics to create a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify differential adaptation, likely driven by factors highlighted in the legend.
 
 ![A.agaricites "yellow" lineage adaptation map](agaricia_yellow_rasterMap.png) 
+
+> NOTE on terminology: For purely historical reasons, Principal Component Analysis of a distance matrix is called a Principal Coordinates Analysis, and its principal components are called, correspondingly, "principal coordinates". Their mathematical meaning is essentially the same as principal components so we were calling them thus throughout this vignette, to keep it simple. 
 
 ## Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
