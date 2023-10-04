@@ -1,6 +1,6 @@
 
 # edit this line to point to the path you downloaded the files to:
-setwd("~/RDA-forest") 
+setwd("~/Dropbox/RDA-forest") 
 
 #install.packages("RDAforest_0.0.0.9000.tar.gz")
 
@@ -76,31 +76,17 @@ plot(ord.all,scaling=1)
 plot(ord.all$CA$eig/sum(ord.all$CA$eig))
 # looks like beyond PC 12-15 there is nothing but noise. Will use the first 25 PCs to be on safe side.
 
-
-# rands=data.frame(cbind(rnorm(nrow(IBS)),rnorm(nrow(IBS))))
-# 
-# ord.r=capscale(as.dist(IBS)~.+Condition(as.matrix(covars)),data=rands)
-# 
-# sc0=data.frame(scores(ord.all,scale=1,choices=1:12)$sites)
-# sc1=data.frame(scores(ord.r,scale=1,choices=1:12)$sites)
-# caps=grep("CAP",colnames(sc1))
-# sc1=sc1[,-caps]
-# par(mfrow=c(4,3))
-# for(i in 1:12){
-#   plot(sc1[,i]~sc0[,i])
-# }
-
-#--------------- variable selection
+#--------------- predictor selection
 
 # the mtrySelection function will fit two models to each spatial bootstrap replicate, 
 # with lower and higher mtry setting: 0.25*N and 0.375*N
-# bad variables ("standing-in" for actually important correlated ones) should 
+# bad predictors ("standing-in" for actually important correlated ones) should 
 # decrease in raw importance at higher mtry (as per Strobl et al 2008)
 # Y can be a square distance matrix 
 # or raw measures matrix (rows:samples, columns:features) 
-# (in which case it may take a long time! better use distances)
 
-mm=mtrySelection(Y=IBS,X=env,nreps=11,covariates=covars, prop.positive.cutoff=0.5,top.pcs=25)
+mm=mtrySelection(Y=IBS,X=env,nreps=11,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
+#mm=mtrySelJack(Y=IBS,X=env,nreps=11,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
 
 # boxplot of importance differences at different mtry 
 ggplot(mm$delta,aes(var,values))+
@@ -142,20 +128,27 @@ plot(XY,pch=".",asp=1)
 # the predictions will be made for original data points then.
 
 sb=spatialBootstrap(Y=IBS,X=env[,mm$goodvars],newX=rasters,nreps=25,covariates=covars,top.pcs=25)
+#ob=ordinationJackknife(Y=IBS,X=env,newX=rasters,nreps=25,covariates=covars,top.pcs=25)
 
  # importance boxplot including space variables
 ggplot(sb$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
+#ggplot(ob$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
 # what is the proportion of variation explained, total?
 sum(sb$median.importance)
+#sum(ob$median.importance)
 # 0.39
 
 # importance boxplot without space variables
 ggplot(sb$all.importances[!(sb$all.importances$variable %in% space),],aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
+#ggplot(ob$all.importances[!(ob$all.importances$variable %in% space),],aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
 # what is the proportion of variation explained without spatial variables?
 sum(sb$median.importance[!(names(sb$median.importance) %in% space)])
+#sum(ob$median.importance[!(names(ob$median.importance) %in% space)])
 # 0.26
 
-save(mm,sb,file="RDAFresult_aagaY_xy_5mems.RData")
+save(mm,sb,env,file="RDAFresult_aagaY_xy_10mems.RData")
+
+load("RDAFresult_aagaY_xy_5mems.RData")
 
 #------ plotting genetic turnover (adaptation) map
 # the following code has been cannibalized from gradientForest vignette. It looks weird but it works!
@@ -213,4 +206,9 @@ map(coasts,add=T,col="grey80",fill=T,border="grey80",lwd=1)
 
 # contrasting colors = habitats requiring differential adaptation, likely driven by factors in the legend.
 
+library(viridis)
+ggplot(XY,aes(x,y,color=rasters$SST_mean.coldest.month))+geom_point()+scale_color_viridis()+coord_equal()
+ggplot(XY,aes(x,y,color=rasters$TEMP.B_yearly_range))+geom_point()+scale_color_viridis()+coord_equal()
+ggplot(XY,aes(x,y,color=rasters$TEMP.B_mean))+geom_point()+scale_color_viridis()+coord_equal()
 
+       
