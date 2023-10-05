@@ -29,11 +29,13 @@ A histogram of how frequently raw importance increases at higher *mtry* across v
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_0.0.0.9000.tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_1.0.0.tar.gz`. To install it, run this in Rstudio
 ```R
 install.packages("/path/to/downloaded/file/RDAforest_1.0.0.tar.gz")
 library(RDAforest)
 ```
+> NOTE If the package installs but the functions are still not found (beats me why this happens sometimes), unpack `RDAforest_1.0.0.tar.gz` and run `source "/path/to/downloaded/file/RDAforest/R/RDAforest_functions.R`
+
 The package depends on `vegan`, `dplyr`, `ggplot2`, and `gradientForest`. Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
 
 First, install `devtools`. 
