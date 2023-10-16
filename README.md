@@ -5,7 +5,7 @@
 
 > Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
 
-RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are trying to solve broadly the same problem as redundancy analysis (RDA), only using the more versatile random forest approach instead of linear regressions. 
+RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are using the same paradigm as distance-based redundancy analysis (dbRDA) - analysing principal coordinates of the data rather than the data straight-up - only using the more versatile random forest approach to detect associations instead of linear regressions.  
 
 ### Application to Genotype-Environment Association (GEA) analysis
 
@@ -14,7 +14,7 @@ In the example here *Y* is the matrix of genetic distances between individuals a
 ### Overview
 
 The method relies on `gradientForest` package in R, which is extension of the random forest approach to multiple response variables. Its main advantags over regression- and model-based methods are:
-- it identifies all sorts of non-linear relationships as well as linear ones
+- it identifies all sorts of non-linear and non-monotonous relationships as well as linear ones
 - it automatically accounts for all possible interactions between predictors
 - it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
