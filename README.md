@@ -34,7 +34,6 @@ The RDA-forest functions come in the form of an R package, `RDAforest_1.0.1.tar.
 install.packages("/path/to/downloaded/file/RDAforest_1.0.1.tar.gz")
 library(RDAforest)
 ```
-> NOTE If the package installs but the functions are still not found (beats me why this happens sometimes), unpack `RDAforest_1.0.0.tar.gz` and run `source "/path/to/downloaded/file/RDAforest/R/RDAforest_functions.R"` in Rstudio.
 
 The package depends on `vegan`, `dplyr`, `ggplot2`, and `gradientForest`. Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
 
