@@ -85,8 +85,8 @@ plot(ord.all$CA$eig/sum(ord.all$CA$eig))
 # Y can be a square distance matrix 
 # or raw measures matrix (rows:samples, columns:features) 
 
-mm=mtrySelection(Y=IBS,X=env,nreps=11,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
-#mm=mtrySelJack(Y=IBS,X=env,nreps=11,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
+#mm=mtrySelection(Y=IBS,X=env,nreps=35,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
+mm=mtrySelJack(Y=IBS,X=env,oob=0.05,nreps=35,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
 
 # boxplot of importance differences at different mtry 
 ggplot(mm$delta,aes(var,values))+
@@ -127,24 +127,18 @@ plot(XY,pch=".",asp=1)
 # if there are no new points to predict, just skip the newX option in the call to spatialBootstrap; 
 # the predictions will be made for original data points then.
 
-sb=spatialBootstrap(Y=IBS,X=env[,mm$goodvars],newX=rasters,nreps=25,covariates=covars,top.pcs=25)
-#ob=ordinationJackknife(Y=IBS,X=env,newX=rasters,nreps=25,covariates=covars,top.pcs=25)
+#sb=spatialBootstrap(Y=IBS,X=env[,mm$goodvars],newX=rasters,nreps=25,covariates=covars,top.pcs=10)
+sb=ordinationJackknife(Y=IBS,X=env,newX=rasters,oob=0.05,nreps=25,covariates=covars,top.pcs=10)
 
  # importance boxplot including space variables
 ggplot(sb$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
-#ggplot(ob$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
 # what is the proportion of variation explained, total?
 sum(sb$median.importance)
-#sum(ob$median.importance)
-# 0.39
 
 # importance boxplot without space variables
 ggplot(sb$all.importances[!(sb$all.importances$variable %in% space),],aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
-#ggplot(ob$all.importances[!(ob$all.importances$variable %in% space),],aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
 # what is the proportion of variation explained without spatial variables?
 sum(sb$median.importance[!(names(sb$median.importance) %in% space)])
-#sum(ob$median.importance[!(names(ob$median.importance) %in% space)])
-# 0.26
 
 save(mm,sb,env,file="RDAFresult_aagaY_xy_10mems.RData")
 
@@ -154,10 +148,15 @@ load("RDAFresult_aagaY_xy_5mems.RData")
 # the following code has been cannibalized from gradientForest vignette. It looks weird but it works!
 
 turnovers=sb$turnovers
-raster.vars=colnames(turnovers)
+
+# if we want to keep all predictors:
+# raster.vars=colnames(turnovers)
+
+# if we want to keep only top 5 predictors (recommended for cases when there are clear "winner" predictors):
+raster.vars=names(sb$median.importance[!names(sb$median.importance) %in% space])[1:5]
 
 # principal component analysis of the predicted genetic turnover patterns
-pc <- prcomp(turnovers)
+pc <- prcomp(turnovers[, raster.vars])
 plot(pc$sdev)
 # we will try to visualize the first 3 PCs
 pcs2show=c(1,2,3)
