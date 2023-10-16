@@ -29,9 +29,9 @@ A histogram of how frequently raw importance increases at higher *mtry* across v
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_1.0.0.tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_1.0.1.tar.gz`. To install it, run this in Rstudio
 ```R
-install.packages("/path/to/downloaded/file/RDAforest_1.0.0.tar.gz")
+install.packages("/path/to/downloaded/file/RDAforest_1.0.1.tar.gz")
 library(RDAforest)
 ```
 > NOTE If the package installs but the functions are still not found (beats me why this happens sometimes), unpack `RDAforest_1.0.0.tar.gz` and run `source "/path/to/downloaded/file/RDAforest/R/RDAforest_functions.R"` in Rstudio.
