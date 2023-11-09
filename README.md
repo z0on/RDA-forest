@@ -73,7 +73,35 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - `sum_up_importances` : Sums up importances of original factors that were dummified using 'dummify()'
 
 
-### Example analysis
+### Example analyses
+
+#### Simple:
+
+Assuming we have a square matrix of genetic distances `Y` and a dataframe of possible predictor variables `X` (samples are rows, predictors are columns), the first thing we would want to run is variable selection procedure based on *mtry* criterion:
+
+```R
+mm = mtrySelJack(Y,X)
+```
+
+There are a few ways to visualize the results:
+
+```R
+# boxplot of importance differences at different mtry
+ggplot(mm$delta,aes(var,values))+
+  geom_boxplot()+
+  coord_flip()+
+  geom_hline(yintercept=0,col="red")
+
+# bar chart of proportion of positive change in response to higher mtry
+# good predictors would be the ones above the red line
+ggplot(mm$prop.positive,aes(var,prop.positive))+
+  geom_bar(stat="identity")+
+  coord_flip()+
+  geom_hline(yintercept=0.5,col="red")
+
+# histogram of proportions of replicates with increasing importance at higher mtry
+hist(mm$prop.positive$prop.positive)
+```
 
 The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. There are some preparatory stages, including examination of clonality/relatedness structure and forming of spatial variables to account for genetic correlation due to spatial proximity. Then we select influential variables using `mtrySelection` and measure their importance with `spatialBootstrap`. 
 
