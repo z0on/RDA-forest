@@ -86,7 +86,7 @@ plot(ord.all$CA$eig/sum(ord.all$CA$eig))
 # or raw measures matrix (rows:samples, columns:features) 
 
 #mm=mtrySelection(Y=IBS,X=env,nreps=35,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
-mm=mtrySelJack(Y=IBS,X=env,oob=0.05,nreps=35,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
+mm=mtrySelJack(Y=IBS,X=env,oob=0.05,nreps=25,covariates=covars, prop.positive.cutoff=0.5,top.pcs=10)
 
 # boxplot of importance differences at different mtry 
 ggplot(mm$delta,aes(var,values))+
@@ -128,7 +128,7 @@ plot(XY,pch=".",asp=1)
 # the predictions will be made for original data points then.
 
 #sb=spatialBootstrap(Y=IBS,X=env[,mm$goodvars],newX=rasters,nreps=25,covariates=covars,top.pcs=10)
-sb=ordinationJackknife(Y=IBS,X=env,newX=rasters,oob=0.05,nreps=25,covariates=covars,top.pcs=10)
+sb=ordinationJackknife(Y=IBS,X=env[,mm$goodvars],newX=rasters,oob=0.05,nreps=25,covariates=covars,top.pcs=10)
 
  # importance boxplot including space variables
 ggplot(sb$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
