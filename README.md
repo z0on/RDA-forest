@@ -72,7 +72,6 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - `dummify` : Turns a dataframe containing numerical and categorical predictors into fully numerical.
 - `sum_up_importances` : Sums up importances of original factors that were dummified using 'dummify()'
 
-
 ### Example analyses
 
 #### Simple:
@@ -102,6 +101,7 @@ ggplot(mm$prop.positive,aes(var,prop.positive))+
 # histogram of proportions of replicates with increasing importance at higher mtry
 hist(mm$prop.positive$prop.positive)
 ```
+### Full-on analysis of actual seascape genomics data
 
 The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. There are some preparatory stages, including examination of clonality/relatedness structure and forming of spatial variables to account for genetic correlation due to spatial proximity. Then we select influential variables using `mtrySelection` and measure their importance with `spatialBootstrap`. 
 
