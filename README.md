@@ -78,7 +78,7 @@ Assuming we have a square matrix of genetic distances `Y` and a dataframe of pos
 mm = mtrySelJack(Y,X)
 ```
 
-There are a few ways to visualize the results. The first one is boxplot of importance differences at different mtry.Variables that do NOT decline in importance at higher *mtry* (boxplots above red line) are likely truly influential ones; others may be simply correlated with them but not influential by themselves.
+There are a few ways to visualize the results. The first one is boxplot of importance differences at different *mtry*. Variables that do NOT decline in importance at higher *mtry* (boxplots above red line) are likely truly influential ones; others may be simply correlated with them but not influential by themselves.
 ```R 
 ggplot(mm$delta,aes(var,values))+
   geom_boxplot()+
@@ -94,13 +94,22 @@ ggplot(mm$prop.positive,aes(var,prop.positive))+
 ```
 ![variable selection results](mtrySelJack_plots.png)
 
-### Full-on analysis of actual seascape genomics data
+Then, we run the RDA-forest analysis using just the variables that passed the *mtry* criterion, which are listed in `mm$goodvars` at this point:
+```R
+rf=ordinationJackknife(Y,X[,mm$goodvars])
+```
+and plot the inferred variable importances (cross-validation R2):
 
-The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. There are some preparatory stages, including examination of clonality/relatedness structure and forming of spatial variables to account for genetic correlation due to spatial proximity. Then we select influential variables using `mtrySelection` and measure their importance with `spatialBootstrap`. 
-
+```R
+ggplot(rf$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
+```
 ![importances boxplot](importance_boxplot_nospace.png)
 
-Finally, use our new knowledge of how environment affects coral genetics to create a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify differential adaptation, likely driven by factors highlighted in the legend.
+### Example of full-on analysis of seascape genomics data
+
+There many additional arguments that may be important in actual analysis, such as nuisance covariates to remove, number of jaccknife replicates to run, or number of leading PCs to consider. There is also a way to use the RDA-forest model to predict adaptation in locations that were not sampled for genetics. The script `RDA-forest.R` illustrates the use of all these things, analyzing genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. 
+
+There are some preparatory stages, including examination of clonality/relatedness structure and forming of spatial variables to account for genetic correlation due to spatial proximity. Then we select influential variables using `mtrySelJack` and measure their importance with `ordinationBootstrap`, as above. But while running `ordinationBootstrap`, we supply the argument `newX` that contains predictor values for a bunch of unsampled locations covering the whole Florida Keys. This will let us generate a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify differential adaptation, likely driven by factors highlighted in the legend.
 
 ![A.agaricites "yellow" lineage adaptation map](agaricia_yellow_rasterMap.png) 
 
