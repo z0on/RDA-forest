@@ -23,10 +23,6 @@ In addition, there are three non-trivial ideas in our RDA-forest method:
 - Alternatively, "ordination jackknife" rebuilds the ordination multiple times based on a subset (default 0.95 of total) of all samples and reruns the analysis. This perhaps more directly tests whether the PCs depend on chance configuration of samples. The downside (compared to "spatial bootstrap") is, the obtained uncertainties depend on the fraction of data used for ordination construction (the higher, the less uncertainty).
 - To detect and discard predictors that are not by themselves important but are correlated with an important one, we use the `mtry`criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down (Strobl et al 2008). So, we fit two models with different `mtry` settings to each spatial bootstrap (or ordination jackknife) replicate. Predictors showing diminished raw importance at the higher `mtry` setting in more than half of all replicates are discarded.
 
-A histogram of how frequently raw importance increases at higher *mtry* across variables can help decide whether the data are strong enough to generate reliable result:
-
-![histogram_propPositive](histograms_propPositive.png) 
-
 ### Installation 
 
 The RDA-forest functions come in the form of an R package, `RDAforest_1.0.1.tar.gz`. To install it, run this in Rstudio
@@ -82,25 +78,27 @@ Assuming we have a square matrix of genetic distances `Y` and a dataframe of pos
 mm = mtrySelJack(Y,X)
 ```
 
-There are a few ways to visualize the results:
-
-```R
-# boxplot of importance differences at different mtry
+There are a few ways to visualize the results. The first one is boxplot of importance differences at different mtry:
+```R 
 ggplot(mm$delta,aes(var,values))+
   geom_boxplot()+
   coord_flip()+
   geom_hline(yintercept=0,col="red")
+```
+![boxplot of importance changes](boxplot_mtrySelJack.png)
+Variables that do NOT decline in importance at higher *mtry* (boxplots above red line) are likely truly influential ones; others may be simply correlated with them but not influential by themselves. 
 
-# bar chart of proportion of positive change in response to higher mtry
-# good predictors would be the ones above the red line
+Bar chart of proportion of positive change in response to higher mtry:
+```R
 ggplot(mm$prop.positive,aes(var,prop.positive))+
   geom_bar(stat="identity")+
   coord_flip()+
   geom_hline(yintercept=0.5,col="red")
-
-# histogram of proportions of replicates with increasing importance at higher mtry
-hist(mm$prop.positive$prop.positive)
 ```
+![bar plot of proportions of positive change among replicates](barplot_mtrySelJack.png)
+Good predictors would be the ones above the red line (do not decline in importance in more than half of replicates).
+
+
 ### Full-on analysis of actual seascape genomics data
 
 The script `RDA-forest.R` analyzes genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. There are some preparatory stages, including examination of clonality/relatedness structure and forming of spatial variables to account for genetic correlation due to spatial proximity. Then we select influential variables using `mtrySelection` and measure their importance with `spatialBootstrap`. 
