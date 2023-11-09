@@ -46,7 +46,7 @@ plot(hc,cex=0.5)
 # is there correlation between geographic and genetic distances (isolation-by-distance)? 
 # If yes, spatial predictors must be included in env
 # running procrustes test
-protest(dist(latlon),IBS)
+protest(capscale(dist(latlon)~1),capscale(IBS~1))
 # looks like we have IBD!
 # lets plot genetic distances against geographic, to convince ourselves
 plot(as.dist(IBS)~dist(latlon),col=rgb(0,0,0,alpha=0.2))
