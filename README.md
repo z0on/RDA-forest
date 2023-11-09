@@ -104,7 +104,7 @@ and plot the inferred variable importances (cross-validation R2):
 ggplot(rf$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
 ```
 ![importances boxplot](importance_boxplot_nospace.png)
-> Note: This boxplot would contain all vaiables that are above the red line in *mtry* selection plots. This one is a bit massaged: it is made to omit nuisance variables meant to account for spatial autocorrelation: `xx`,`yy`, and `PCNM1-10`.
+> Note: This boxplot should contain all vaiables that are above the red line in *mtry* selection plots. This one is a bit massaged: it is made to omit nuisance variables meant to account for spatial autocorrelation: `xx`,`yy`, and `PCNM1-10`.
 
 ### Example of full-on analysis of seascape genomics data
 
