@@ -85,7 +85,7 @@ ggplot(mm$delta,aes(var,values))+
   coord_flip()+
   geom_hline(yintercept=0,col="red")
 ```
-![boxplot of importance changes](boxplot_mtrySelJack.png)
+![boxplot of importance changes](boxplot_mtrySelJack.png | width=100)
 Variables that do NOT decline in importance at higher *mtry* (boxplots above red line) are likely truly influential ones; others may be simply correlated with them but not influential by themselves. 
 
 Bar chart of proportion of positive change in response to higher mtry:
