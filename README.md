@@ -78,26 +78,21 @@ Assuming we have a square matrix of genetic distances `Y` and a dataframe of pos
 mm = mtrySelJack(Y,X)
 ```
 
-There are a few ways to visualize the results. The first one is boxplot of importance differences at different mtry:
+There are a few ways to visualize the results. The first one is boxplot of importance differences at different mtry.Variables that do NOT decline in importance at higher *mtry* (boxplots above red line) are likely truly influential ones; others may be simply correlated with them but not influential by themselves.
 ```R 
 ggplot(mm$delta,aes(var,values))+
   geom_boxplot()+
   coord_flip()+
   geom_hline(yintercept=0,col="red")
 ```
-![boxplot of importance changes](boxplot_mtrySelJack.png | width=100)
-Variables that do NOT decline in importance at higher *mtry* (boxplots above red line) are likely truly influential ones; others may be simply correlated with them but not influential by themselves. 
-
-Bar chart of proportion of positive change in response to higher mtry:
+And the second one is a bar chart of proportion of positive change in response to higher mtry. Good predictors would be the ones above the red line (do not decline in importance in more than half of replicates).
 ```R
 ggplot(mm$prop.positive,aes(var,prop.positive))+
   geom_bar(stat="identity")+
   coord_flip()+
   geom_hline(yintercept=0.5,col="red")
 ```
-![bar plot of proportions of positive change among replicates](barplot_mtrySelJack.png)
-Good predictors would be the ones above the red line (do not decline in importance in more than half of replicates).
-
+![variable selection results](mtrySelJack_plots.png)
 
 ### Full-on analysis of actual seascape genomics data
 
