@@ -1,26 +1,25 @@
 # RDA-forest
 ## Using random forest to analyze shapes of multivariate datasets
 
-![importances boxplot](importance_boxplot.png)
-
-> Citation: K. Black, J. P. Rippe, and M. Matz 2022. “Environmental Drivers of Genetic Adaptation in Florida Corals.” europepmc.org/article/ppr/ppr579436. (preprint; in revision for Molecular Ecology)
+> Citation: pending
 
 RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are using the same paradigm as distance-based redundancy analysis (dbRDA) - analysing principal coordinates of the data rather than the data straight-up - only using the more versatile random forest approach to detect associations instead of linear regressions.  
 
 ### Application to Genotype-Environment Association (GEA) analysis
 
-In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*. Unlike most other GEA methods, we are not trying to find specific loci associated with environment, but want to leverage the polygenic nature of adaptation to identify the variables that truly matter for our creatures. The fundamental assumption is that adaptation to the same conditions make organisms slightly more similar to each other than to their peers living in a different environment. We aim to identify environmental gradients driving this subtle genetic structure. The same idea was also the basis of earlier GEA method called Generalized Dissimilarity Modeling ([Ferrier et al 2007](https://doi.org/10.1111/j.1472-4642.2007.00341.x)), except we use random forest instead of generalized linear modeling to find associations between enviroinmental variables and principal coordinates of the genetic distance matrix.
+In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*. Unlike most other GEA methods, we are not trying to find specific loci associated with environment, but want to identify the environmental variables that drive polygenic local adaptation. Polygenic adaptation alters the genome-wide covariance structure, which means that similarly adapted organisms become slighly more similar to each other genetically than to their peers adapting to a different environment. Our method aims to identify environmental parameters driving this subtle pattern of genetic similarity, captured by the leading principal components (PCs) of the genetic distance matrix. The same idea was also the basis of earlier GEA method called Generalized Dissimilarity Modeling ([Ferrier et al 2007](https://doi.org/10.1111/j.1472-4642.2007.00341.x)), except we use random forest instead of generalized linear models to find associations. 
 
 ### Overview
 
 The method relies on `gradientForest` package in R, which is extension of the random forest approach to multiple response variables. Its main advantags over regression- and model-based methods are:
-- it identifies all sorts of non-linear and non-monotonous relationships as well as linear ones
-- it automatically accounts for all possible interactions between predictors
+- it identifies all sorts of non-linear and non-monotonous relationships as well as linear ones;
+- it automatically accounts for all possible interactions between predictors;
+- it easily corrects for spatial autocorrelation between samples by including their geographic coordinates into the model, since gradient forest regression can capture any spatial configuration of samples based on just the two coordinates;
 - it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
-In addition, there are three non-trivial ideas in our RDA-forest method:
-- It uses "ordination jackknife" rebuilds the ordination multiple times based on a subset (default 0.9 of total) of all samples and reruns the analysis. This tests whether the PCs depend on chance configuration of samples.
-- To detect and discard predictors that are not by themselves important but are correlated with an important one, we use the `mtry`criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down (Strobl et al 2008). So, we fit two models with different `mtry` settings to each ordination jackknife replicate. Predictors showing diminished raw importance at the higher `mtry` setting in more than half of all replicates are discarded.
+In addition, there are two novel ideas in our RDA-forest method:
+- **Jackknifing**: We use "ordination jackknife" procedure, which rebuilds the ordination multiple times based on a subset (default 0.9 of total) of all samples and reruns the analysis. This models the uncertainty of PCs determination.
+- **Mtry-based variable selection**: To detect and discard predictors that are not by themselves important but are correlated with an important one, we use the `mtry`criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down (Strobl et al 2008). So, we fit two models with different `mtry` settings to each ordination jackknife replicate. Predictors consistently showing diminished raw importance at the higher `mtry` setting are then discarded.
 
 ### Installation 
 
@@ -30,7 +29,7 @@ install.packages("/path/to/downloaded/file/RDAforest_1.0.1.tar.gz")
 library(RDAforest)
 ```
 
-The package depends on `vegan`, `dplyr`, `ggplot2`, and `gradientForest`. Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
+The package depends on `vegan`, `dplyr`, and `gradientForest`. Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
 
 First, install `devtools`. 
 ```R
