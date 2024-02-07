@@ -100,7 +100,7 @@ and plot the inferred variable importances (cross-validation R2):
 ```R
 ggplot(rf$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
 ```
-![importances boxplot](importance_boxplot.png)
+![importances boxplot](importances_boxplot.png)
 
 ### Example of full-on analysis of seascape genomics data
 
