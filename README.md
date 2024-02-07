@@ -89,7 +89,7 @@ ggplot(mm$prop.positive,aes(var,prop.positive))+
   coord_flip()+
   geom_hline(yintercept=0.5,col="red")
 ```
-![variable selection results](mtrySelJack_plots.png)
+![variable selection results](mtrySeljack_plots.png)
 
 Then, we run the RDA-forest analysis using just the variables that passed the *mtry* criterion, which are listed in `mm$goodvars` at this point:
 ```R
