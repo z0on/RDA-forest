@@ -1,13 +1,13 @@
 # RDA-forest
 ## Using random forest to analyze shapes of multivariate datasets
 
-> Citation: pending
+> Citation: Kristina Black, J. P. Rippe, and Mikhail Matz. 2024 "RDA-forest: the next step after RDA-based genotype-environment associaton analysis", in submission.
 
 RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are using the same paradigm as distance-based redundancy analysis (dbRDA) - analysing principal coordinates of the data rather than the data straight-up - only using the more versatile random forest approach to detect associations instead of linear regressions.
 
 ### Application to Genotype-Environment Association (GEA) analysis
 
-In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*. Unlike most other GEA methods, we are not trying to find specific loci associated with environment, but want to identify the environmental variables that drive polygenic local adaptation. Polygenic adaptation alters the genome-wide covariance structure, which means that similarly adapted organisms become slighly more similar to each other genetically than to their peers adapting to a different environment. Our method aims to identify environmental parameters driving this subtle pattern of genetic similarity, captured by the leading principal components (PCs) of the genetic distance matrix. 
+In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*. Unlike most other GEA methods, we are not trying to find specific loci associated with environment, but want to identify the environmental variables that drive polygenic local adaptation. Polygenic adaptation alters the [genome-wide covariance structure](https://doi.org/10.1111/2041-210X.13722), which means that similarly adapted organisms become slighly more similar to each other genetically than to their peers adapting to a different environment. Our method aims to identify environmental parameters driving this subtle pattern of genetic similarity, captured by the leading principal components (PCs) of the genetic distance matrix. 
 
 ### Overview
 
