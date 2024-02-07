@@ -89,6 +89,10 @@ ggplot(mm$prop.positive,aes(var,prop.positive))+
   coord_flip()+
   geom_hline(yintercept=0.5,col="red")
 ```
+It is also interesting to plot a histogram of proportions of passing replicates across all tested predictors, to see if there is a clear group of "winners" - a mode near 1 (which is the case here):
+```R
+hist(mm$prop.positive$prop.positive)
+```
 ![variable selection results](mtrySeljack_plots.png)
 
 Then, we run the RDA-forest analysis using just the variables that passed the *mtry* criterion, which are listed in `mm$goodvars` at this point:
