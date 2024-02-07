@@ -15,7 +15,7 @@ The method relies on `gradientForest` package in R, which is extension of the ra
 - it identifies all sorts of non-linear and non-monotonous relationships as well as linear ones;
 - it automatically accounts for all possible interactions between predictors;
 - it easily corrects for spatial autocorrelation between samples by including their geographic coordinates into the model, since gradient forest regression can capture any spatial configuration of samples based on just the two coordinates;
-- It handles correlated predistors properly, using ![conditional permutation](strobl_conditional_permutation_mtry.pdf) to determine their importance;
+- It handles correlated predistors properly, using ![conditional permutation](strobl18_conditional_permutation_mtry.pdf) to determine their importance;
 - it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
 In addition, there are two novel ideas in our RDA-forest method:
