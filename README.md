@@ -21,6 +21,7 @@ The method relies on `gradientForest` package in R, which is extension of the ra
 In addition, there are two novel ideas in our RDA-forest method:
 - **Jackknifing**: We use "ordination jackknife" procedure, which rebuilds the ordination multiple times based on a subset (default 0.9 of total) of all samples and reruns the analysis. This models the uncertainty of PCs determination.
 - **Mtry-based variable selection**: To detect and discard predictors that are not by themselves important but are correlated with an important one, we use the `mtry`criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down (Strobl et al 2008). So, we fit two models with different `mtry` settings to each ordination jackknife replicate. Predictors consistently showing diminished raw importance at the higher `mtry` setting are then discarded.
+>NOTE: The default threshold for the proportion of replicates in which the predictor must show increasing importance at higher `mtry` is 0.53. It is not 0.5 because 0.5 is what an absolutely non-influential predictor would show in this procedure. 
 
 ### Installation 
 
