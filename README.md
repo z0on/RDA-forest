@@ -112,7 +112,7 @@ There many additional arguments that may be important in actual analysis, such a
 
 There are some preparatory stages, including examination of clonality/relatedness structure and visualization of the PCA of the data. Then we select influential variables using `mtrySelJack` (including spatial variables, latitude and longitude, in the selection process) and measure their importance with `ordinationJackknife`, as above. While running `ordinationJackknife`, we also supply the argument `newX` that contains predictor values for a bunch of unsampled locations covering the whole Florida Keys. This will let us generate a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify differential adaptation, likely driven by factors highlighted in the legend.
 
-![A.agaricites "yellow" lineage adaptation map](agaricia_yellow_rasterMap.png) 
+![A.agaricites "yellow" lineage adaptation map](yellow_rasters3.pdf) 
 
 > NOTE on terminology: For purely historical reasons, Principal Component Analysis of a distance matrix is called a Principal Coordinates Analysis, and its principal components are called, correspondingly, "principal coordinates". Their mathematical meaning is essentially the same as principal components so we were calling them thus throughout this vignette, to keep it simple. 
 
