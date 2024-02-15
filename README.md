@@ -61,11 +61,11 @@ All functions have documentation accessible as usual by asking `?functionName` i
 
 - `makeGF_simple` : A simple wrapper for the *gradientForest()* function, uses straight-up response matrix *Y*.
 - `makeGF` : Runs gradient forest analysis on an ordination object made by *vegan::capscale()* or *vegan::rda()*.
-- `ordinationJackknife` : Runs *gradientForest* on *nreps* jackknife replicates, each time rebuilding the ordination withholding a fraction of datapoints (default 0.1).
+- `ordinationJackknife` : Runs *gradientForest* on *nreps* jackknife replicates, each time rebuilding the ordination withholding a fraction of datapoints (default 0.25).
 - `mtrySelJack` : Performs variable selection based on *mtry* criterion: variables that are not important by themselves, only correlated with the actually important ones, begin to lose importance at higher *mtry* setting (Strobl et al 2018). The function runs *nreps* jackknife replicates on an ordination, fitting two *gradientForest* models with different *mtry* settings. It then selects variables that do not decrease in importance at higher *mtry*.
-- `predict.rf` : Predicts *Y* values based on *extendedForest::randomForest*.
-- `plot.adaptation` : Plots first two PCs of the supplied ordination with *envfit* arrows, then plots geographical map of adaptation colored according to the first two PCs. 
-- `plot.turnover` : Plots turnover curve for the specific *X* variable, based on object returned by *ordinationJackknife* with option *predict.mode="turnover"*. 
+- `predict_rf` : Predicts *Y* values based on *extendedForest::randomForest*.
+- `plot_adaptation` : Plots first two PCs of the supplied ordination with *envfit* arrows, then plots geographical map of adaptation colored according to the first two PCs. Can color points by predicted PCs, or by cluster they fall into (with `nclust` argument).
+- `plot_turnover` : Plots turnover curve for the specific *X* variable, based on object returned by *ordinationJackknife* with option *predict.mode="turnover"*. 
 - `dummify` : Turns a dataframe containing numerical and categorical predictors into fully numerical.
 - `sum_up_importances` : Sums up importances of original factors that were dummified using 'dummify()'
 
@@ -92,10 +92,6 @@ ggplot(mm$prop.positive,aes(var,prop.positive))+
   geom_bar(stat="identity")+
   coord_flip()+
   geom_hline(yintercept=0.5,col="red")
-```
-It is also interesting to plot a histogram of proportions of passing replicates across all tested predictors, to see if there is a clear group of "winners" - a mode near 1 (which is the case here):
-```R
-hist(mm$prop.positive$prop.positive)
 ```
 ![variable selection results](mtrySeljack_plots.png)
 
