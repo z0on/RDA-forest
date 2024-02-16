@@ -1,7 +1,7 @@
 # RDA-forest
 ## Using random forest to analyze shapes of multivariate datasets
 
-> Citation: Kristina Black, J. P. Rippe, and Mikhail Matz. 2024 "RDA-forest: the next step after RDA-based genotype-environment associaton analysis", in submission.
+> Citation: Kristina Black, J. P. Rippe, and Mikhail Matz. 2024 "RDA-forest: identifying envrironmental factors driving polygenic adaptation", in submission.
 
 RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). The name "RDA forest" reflects the fact that we are using the same paradigm as distance-based redundancy analysis (dbRDA) - analysing principal coordinates of the data rather than the data straight-up - only using the more versatile random forest approach to detect associations instead of linear regressions.
 
