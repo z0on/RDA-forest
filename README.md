@@ -115,7 +115,7 @@ There are some preparatory stages, including examination of clonality/relatednes
 ![A.agaricites "yellow" lineage adaptation map](agaricia_yellow_rasters_feb.png) 
 
 It is also possible to plot the same map after clustering the points by similarity of predicted adaptation, resulting in a map of "adaptive neighborhoods":
-![A.agaricites "yellow" lineage adaptation map,clustered](agaricia_yellow_rasters_feb_clust.png) 
+![A.agaricites "yellow" lineage adaptation map,clustered](agaricia_yellow_rasters_clust_feb.png) 
 
 > NOTE on terminology: For purely historical reasons, Principal Component Analysis of a distance matrix is called a Principal Coordinates Analysis, and its principal components are called, correspondingly, "principal coordinates". Their mathematical meaning is essentially the same as principal components so we were calling them thus throughout this vignette, to keep it simple. 
 
