@@ -14,7 +14,6 @@ library(maps)
 library(rnaturalearth)
 library(rnaturalearthdata)
 coasts= ne_coastline(scale="large")
-map(coasts)
 
 # loading all data: 
 ll=load("Agaricia_yellow.RData")
@@ -26,8 +25,9 @@ ll
 # IBS:    square matrix of genetic distances. In this case, this is identity-by-state matrix produced by ANGSD based on 2bRAD data.
 # env:    environmental variables to test for association with coral genetics
 
-plot(lat~lon,latlon,pch=19,cex=1,col="grey70",asp=1)
-map(coasts,add=T,col="grey80",fill=T,border="grey80",lwd=1)
+# map of sampling sites
+plot(lat~lon,latlon,cex=1,asp=1)
+maps::map(coasts,add=T,col="grey80",fill=T,border="grey80",lwd=1)
 
 # ------ hierarchical clustering tree
 # to confirm there are no highly related (possibly clonal) samples (forming forks "hanging down" much lower than others)
@@ -77,7 +77,7 @@ mm=mtrySelJack(Y=IBS,X=cbind(latlon,env),covariates=covars,nreps=15,top.pcs=15)
 mm$goodvars
 
 # boxplot of importance differences at higher vs lower mtry
-ggplot(mm1$delta,aes(var,values))+
+ggplot(mm$delta,aes(var,values))+
   geom_boxplot()+
   coord_flip()+
   geom_hline(yintercept=0,col="red")
@@ -87,7 +87,7 @@ ggplot(mm1$delta,aes(var,values))+
 ggplot(mm$prop.positive,aes(var,prop.positive))+
   geom_bar(stat="identity")+
   coord_flip()+
-  geom_hline(yintercept=0.6,col="red")
+  geom_hline(yintercept=0.5,col="red")
 
 #save(mm,file="mm.RData")
 #load("mm.RData")
@@ -129,7 +129,7 @@ names(XY)=c("lon","lat")
 evars=mm$goodvars[!(mm$goodvars %in% c("lat","lon"))]
 
 # running full modeling/prediction with jackknifing, including lat, lon
-sb=ordinationJackknife(Y=IBS,X=cbind(latlon,env)[,mm$goodvars],newX=cbind(XY,rasters),oob=0.2,nreps=25,covariates=covars,top.pcs=15)
+sb=ordinationJackknife(Y=IBS,X=cbind(latlon,env)[,mm$goodvars],newX=cbind(XY,rasters),oob=0.2,nreps=15,covariates=covars,top.pcs=15)
 
 # same without lat, lon - it woudl be the same in this case since lat, lon did not make it through mtry selection
 sb.env=ordinationJackknife(Y=IBS,X=env[,evars],newX=rasters,oob=0.1,nreps=5,covariates=covars,top.pcs=15)
@@ -145,8 +145,8 @@ sum(sb.latlon$median.importance)
 # importance boxplot
 ggplot(sb$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
 
-#save(mm,sb,env,latlon,file="RDAFresult_aagaY_latlon.RData")
-#load("RDAFresult_aagaY_latlon.RData")
+save(mm,sb,env,latlon,file="RDAFresult_aagaY_latlon_feb15.RData")
+#load("RDAFresult_aagaY_latlon_feb15.RData")
 
 #------ plotting adaptation map
 
@@ -162,18 +162,18 @@ rfs=sb$predictions
 
 # making new ordination and fitting environmental vectors
 rd=rda(rfs~1)
-bests=names(sb$median.importance)
+bests=names(sb$median.importance)[1:4]
 ee=envfit(rd,cbind(XY,rasters)[,bests])
 
-pp=plot_adaptation(rd,ee,XY,flip1=1,flip2=1,nclust=3,scal=20,cex=0.8,jitscale=0.03,rangeExp=2,coltxt = "coral",cluster.indices = TRUE)
+pp=plot_adaptation(rd,ee,XY,flip1=1,flip2=1,nclust=5,scal=10,cex=0.8,jitscale=0.05,rangeExp=2,coltxt = "red",cluster.indices = TRUE)
 # to make a color-clustered version of the map and PCA, set nclust to some number of clusters 
 # to try different color scheme try setting flip1 and/or flip2 to -1
 # to make envfit arrows longer, reduce scal
 # to make PCA smaller (and leave more space for envfit arrows and labels) increase rangeExp
-# cex controls size of arrow text labels
-# to make labels sty further away from arrows increase jitscale
-# (the distance of label from its arrow in a bit different for each label every time you plot,
-# so if labels overlap try plotting the same again until there is a version where they don't)
+# cex controls size of points AND text labels
+# to make labels stand further away from arrows increase jitscale
+# (the distance of label from its arrow will be a bit different each time you plot,
+# so if labels overlap try plotting the same again and again until there is a version where they don't)
 
 # # adding map
-maps::map(coasts, add = TRUE)
+maps::map(coasts, add=TRUE,col="grey80",fill=T,border="grey80",lwd=1)
