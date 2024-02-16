@@ -15,13 +15,12 @@ The method relies on `gradientForest` package in R, which is extension of the ra
 - it identifies all sorts of non-linear and non-monotonous relationships as well as linear ones;
 - it automatically accounts for all possible interactions between predictors;
 - it easily corrects for spatial autocorrelation between samples by including their geographic coordinates into the model, since gradient forest regression can capture any spatial configuration of samples based on just the two coordinates;
-- It handles correlated predistors properly, using ![conditional permutation](strobl18_conditional_permutation_mtry.pdf) to determine their importance;
+- it handles correlated predistors properly, using ![conditional permutation](strobl18_conditional_permutation_mtry.pdf) to determine their importance;
 - it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
 In addition, there are two novel ideas in our RDA-forest method:
-- **Jackknifing**: We use "ordination jackknife" procedure, which rebuilds the ordination multiple times based on a subset (default 0.9 of total) of all samples and reruns the analysis. This models the uncertainty of PCs determination.
+- **Jackknifing**: We use "ordination jackknife" procedure, which rebuilds the ordination multiple times based on a subset (default 0.8 of total) of all samples and reruns the analysis. This models the uncertainty of PCs determination.
 - **Mtry-based variable selection**: To detect and discard predictors that are not by themselves important but are correlated with an important one, we use the `mtry`criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down (Strobl et al 2008). So, we fit two models with different `mtry` settings to each ordination jackknife replicate. Predictors consistently showing diminished raw importance at the higher `mtry` setting are then discarded.
->NOTE: The default threshold for the proportion of jackknife replicates in which the predictor must show increasing importance at higher `mtry` is 0.53. It is not 0.5 because 0.5 is what an absolutely non-influential predictor would show in this procedure. 
 
 ### Installation 
 
@@ -108,7 +107,7 @@ ggplot(rf$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+
 
 ### Example of full-on analysis of seascape genomics data
 
-There many additional arguments that may be important in actual analysis, such as nuisance covariates to remove, number of jaccknife replicates to run, or number of leading PCs to consider. We also typically need to account for spatial covariance of the data. Moreover, there is a way to use the RDA-forest model to predict adaptation in locations that were not sampled for genetics. The script `RDA-forest.R` illustrates all these additions, analyzing genetic distances of `Agaricia agaricites` coral. It is well-commented so hopefully it is clear what is going on. 
+There many additional arguments that may be important in actual analysis, such as nuisance covariates to remove, number of jaccknife replicates to run, or number of leading PCs to consider. We also typically need to account for spatial covariance of the data. Moreover, there is a way to use the RDA-forest model to predict adaptation in locations that were not sampled for genetics. The script `RDA-forest.R` illustrates all these additions, analyzing genetic distances of the coral *Agaricia agaricites*. It is well-commented so hopefully it is clear what is going on. 
 
 There are some preparatory stages, including examination of clonality/relatedness structure and visualization of the PCA of the data. Then we select influential variables using `mtrySelJack` (including spatial variables, latitude and longitude, in the selection process) and measure their importance with `ordinationJackknife`, as above. While running `ordinationJackknife`, we also supply the argument `newX` that contains predictor values for a bunch of unsampled locations covering the whole Florida Keys. This will let us generate a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify differential adaptation.  
 
