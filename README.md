@@ -24,7 +24,7 @@ In addition, there are two novel ideas in our RDA-forest method:
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_2.0.0.tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_2.1.1.tar.gz`. To install it, run this in Rstudio
 ```R
 install.packages("/path/to/downloaded/file/RDAforest_2.0.0.tar.gz")
 library(RDAforest)
@@ -61,10 +61,11 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - `makeGF_simple` : A simple wrapper for the *gradientForest()* function, uses straight-up response matrix *Y*.
 - `makeGF` : Runs gradient forest analysis on an ordination object made by *vegan::capscale()* or *vegan::rda()*.
 - `ordinationJackknife` : Runs *gradientForest* on *nreps* jackknife replicates, each time rebuilding the ordination withholding a fraction of datapoints (default 0.25).
-- `mtrySelJack` : Performs variable selection based on *mtry* criterion: variables that are not important by themselves, only correlated with the actually important ones, begin to lose importance at higher *mtry* setting (Strobl et al 2018). The function runs *nreps* jackknife replicates on an ordination, fitting two *gradientForest* models with different *mtry* settings. It then selects variables that do not decrease in importance at higher *mtry*.
-- `predict_rf` : Predicts *Y* values based on *extendedForest::randomForest*.
-- `plot_adaptation` : Plots first two PCs of the supplied ordination with *envfit* arrows, then plots geographical map of adaptation colored according to the first two PCs. Can color points by predicted PCs, or by cluster they fall into (with `nclust` argument).
-- `plot_turnover` : Plots turnover curve for the specific *X* variable, based on object returned by *ordinationJackknife* with option *predict.mode="turnover"*. 
+- `mtrySelJack` : Performs variable selection based on *mtry* criterion: variables that are not important by themselves, only correlated with the actually important ones, begin to lose importance at higher *mtry* setting (Strobl et al 2018). The function runs *nreps* jackknife replicates on an ordination, fitting two *gradientForest* models with different *mtry* settings. It then selects variables that do not decrease in importance at higher *mtry*. Can be made more allowing (i.e. retain more predictors) by using lower *mtry* values (add options `mintry=3, maxtry=6`). The default setting (`mintry`= *N*/5, `maxtry`=2*N*/5 where *N* is the number of predictors) is fairly conservative, i.e. tends to leave only a handful of the most influential predictors.
+- `predict_rf` : Predicts *Y* values based on *extendedForest::randomForest*. Makes sure no predictions are made beyond the range of preedictors used to fit the model.
+- `predict_gf` : Generates turnover curves ("predictions") with *gradientForest*. These are particularly good for clustering (see `plot_adaptation`). Just like `predict_rf`, makes sure no predictions are made beyond the range of preedictors used to fit the model.
+- `plot_adaptation` : Plots first two PCs of the supplied ordination with *envfit* arrows, then plots geographical map of adaptation colored according to the first two PCs. Can color points by predicted PCs, or by cluster they fall into (with `nclust` argument). Starting with version 2.1.1 can use turnover curves ("predictions" from *gradientForest*) for clustering and merge clusters if they are too similar accoring to *randomForest* predictions. That can generate more robust clustering than clustering *randomForest* predictions straight up.
+- `plot_turnover` : Plots turnover curve for the specific *X* preedictor, based on object returned by *ordinationJackknife* with option *predict.mode="turnover"*. 
 - `dummify` : Turns a dataframe containing numerical and categorical predictors into fully numerical.
 - `sum_up_importances` : Sums up importances of original factors that were dummified using 'dummify()'
 
