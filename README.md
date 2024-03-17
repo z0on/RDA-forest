@@ -70,7 +70,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`makeGF`** : Runs gradient forest analysis on an ordination object made by `vegan::capscale` or `vegan::rda`.
 - **`predict_rf`** : (To be used directly on *Y* data, without ordination or jackknifing) Predicts *Y* values based on `extendedForest::randomForest`. These values can be used for plotting adaptation with `plot_adaptation` instead of *[result of `ordinationJackknife`]$predictions.direct*. Handles modeled and predicted ranges like `ordinationJackknife`. 
 - **`predict_gf`** : (To be used directly on *Y* data, without ordination or jackknifing) Generates turnover curves with `gradientForest`. These should **not** be used plotting adaptation but are good for clustering points into adaptive neighborhoods in *plot_adaptation* with option *clustering.guide* (instead of *[result of `ordinationJackknife`]$predictions.turnover*). Handles modeled and predicted ranges like `ordinationJackknife`.
-- **`plot_turnover`** : Plots turnover curve for the specific *X* preedictor, based on *[result of `ordinationJackknife`]$predictions.turnover*. 
+- **`plot_turnover`** : Plots turnover curve for the specific *X* predictor, based on *[result of `ordinationJackknife`]$predictions.turnover*. 
 - **`latlon2UTM`**, **`epsg.maker`** - accessory functions for `plot_nice_map`.
 
 ### Example analyses
