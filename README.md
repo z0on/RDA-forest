@@ -14,7 +14,6 @@ In the example here *Y* is the matrix of genetic distances between individuals a
 The method relies on `gradientForest` package in R, which is extension of the random forest approach to multiple response variables. Its main advantags over regression- and model-based methods are:
 - it identifies all sorts of non-linear and non-monotonous relationships as well as linear ones;
 - it automatically accounts for all possible interactions between predictors;
-- it easily corrects for spatial autocorrelation between samples by including their geographic coordinates into the model, since gradient forest regression can capture any spatial configuration of samples based on just the two coordinates;
 - it handles correlated predistors properly, using ![conditional permutation](strobl18_conditional_permutation_mtry.pdf) to determine their importance;
 - it uses cross-validation to compute importance of predictors, so what it reports is the actual predictive power of the model for a completely new set of data.
 
