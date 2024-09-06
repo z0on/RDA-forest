@@ -76,6 +76,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`latlon2UTM`**, **`epsg.maker`**, **`bw_choose`** - accessory functions for `plot_nice_map` and `plot_adaptation`.
 
 ### Example analysis: [North American Wolves](https://html-preview.github.io/?url=https://github.com/z0on/RDA-forest/blob/main/RDAforest_wolves.html)
+Download Rmarkdown script `RDAforest_wolves.Rmd` and the dataset `wolf_v3.RData` to replicate this.
 
 ### Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
