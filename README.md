@@ -75,55 +75,8 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`predict_gf`** : (To be used directly on *Y* data, without ordination or jackknifing) Generates turnover curves with `gradientForest`. These should **not** be used plotting adaptation but are good for clustering points into adaptive neighborhoods in *plot_adaptation* with option *clustering.guide* (instead of *[result of `ordinationJackknife`]$predictions.turnover*). Handles modeled and predicted ranges like `ordinationJackknife`.
 - **`latlon2UTM`**, **`epsg.maker`**, **`bw_choose`** - accessory functions for `plot_nice_map` and `plot_adaptation`.
 
-### Example analyses
+### Example analysis: North American Wolves
 
-#### Simple:
-
-Assuming we have a square matrix of genetic distances `Y` and a dataframe of possible predictor variables `X` (samples are rows, predictors are columns), the first thing we would want to run is variable selection procedure based on *mtry* criterion:
-
-```R
-mm = mtrySelJack(Y,X)
-```
-
-There are a few ways to visualize the results. The first one is boxplot of importance differences at different *mtry*. Variables that do NOT decline in importance at higher *mtry* (boxplots above red line) are likely truly influential ones; others may be simply correlated with them but not influential by themselves.
-```R 
-ggplot(mm$delta,aes(var,values))+
-  geom_boxplot()+
-  coord_flip()+
-  geom_hline(yintercept=0,col="red")
-```
-And the second one is a bar chart of proportion of positive change in response to higher *mtry*. Good predictors would be the ones above the red line (do not decline in importance in more than half of replicates).
-```R
-ggplot(mm$prop.positive,aes(var,prop.positive))+
-  geom_bar(stat="identity")+
-  coord_flip()+
-  geom_hline(yintercept=0.5,col="red")
-```
-![variable selection results](agaricia_yellow_mtrySelJack_feb2.png)
-
-Then, we run the RDA-forest analysis using just the variables that passed the *mtry* criterion, which are listed in `mm$goodvars` at this point:
-```R
-rf=ordinationJackknife(Y,X[,mm$goodvars])
-```
-and plot the inferred variable importances (cross-validation R2):
-
-```R
-ggplot(rf$all.importances,aes(variable,importance))+geom_boxplot()+coord_flip()+theme_bw()
-```
-![importances boxplot](agaricia_yellow_importances_feb2.png)
-
-### Example of full-on analysis of seascape genomics data
-
-There many additional arguments that may be important in actual analysis, such as nuisance covariates to remove, number of jaccknife replicates to run, or number of leading PCs to consider. We also typically need to account for spatial covariance of the data. Moreover, there is a way to use the RDA-forest model to predict adaptation in locations that were not sampled for genetics. The script `RDA-forest_0221.R` illustrates all these additions, analyzing genetic distances of the coral *Agaricia agaricites*. It is well-commented so hopefully it is clear what is going on. 
-
-There are some preparatory stages, including examination of clonality/relatedness structure and visualization of the PCA of the data. Then we select influential variables using `mtrySelJack` (including spatial variables, latitude and longitude, in the selection process) and measure their importance with `ordinationJackknife`, as above. While running `ordinationJackknife`, we also supply the argument `newX` that contains predictor values for a bunch of unsampled locations covering the whole Florida Keys. This will let us generate a map of the coral's differential adaptation across the whole Florida Keys seascape. Contrasting colors in the map signify differential adaptation.  
-
-![A.agaricites "yellow" lineage adaptation map](agaricia_yellow_rasters_feb21.png) 
-
-It is also possible to plot the same map after clustering the points by similarity of predicted adaptation, resulting in a map of "adaptive neighborhoods":
-![A.agaricites "yellow" lineage adaptation map,clustered](agaricia_yellow_rasters_clusteredByGF_feb21.png) 
-
-> NOTE on terminology: For purely historical reasons, Principal Component Analysis of a distance matrix is called a Principal Coordinates Analysis, and its principal components are called, correspondingly, "principal coordinates". Their mathematical meaning is essentially the same as principal components so we were calling them thus throughout this vignette, to keep it simple. 
 
 ### Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
