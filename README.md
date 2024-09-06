@@ -75,7 +75,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`predict_gf`** : (To be used directly on *Y* data, without ordination or jackknifing) Generates turnover curves with `gradientForest`. These should **not** be used plotting adaptation but are good for clustering points into adaptive neighborhoods in *plot_adaptation* with option *clustering.guide* (instead of *[result of `ordinationJackknife`]$predictions.turnover*). Handles modeled and predicted ranges like `ordinationJackknife`.
 - **`latlon2UTM`**, **`epsg.maker`**, **`bw_choose`** - accessory functions for `plot_nice_map` and `plot_adaptation`.
 
-### Example analysis: [North American Wolves](RDAforest_wolves.html)
+### Example analysis: [North American Wolves](https://html-preview.github.io/?url=RDAforest_wolves.html)
 
 ### Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
