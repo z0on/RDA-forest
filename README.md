@@ -23,9 +23,9 @@ In addition, there are two novel ideas in our RDA-forest method:
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_2.5.1.tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_2.6.1.tar.gz`. To install it, run this in Rstudio
 ```R
-install.packages("/path/to/downloaded/file/RDAforest_2.5.1.tar.gz")
+install.packages("/path/to/downloaded/file/RDAforest_2.6.1.tar.gz")
 library(RDAforest)
 ```
 
