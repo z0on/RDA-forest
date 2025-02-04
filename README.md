@@ -78,7 +78,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`gcd.dist`** : calculates great circle distances based on longitude and latitude, returns adjusted coordinates and the distance matrix.
 - **`latlon2UTM`**, **`epsg.maker`**, **`bw_choose`** ,**`gen_offset`**,**`adapt_scale`** - various accessory functions.
 
-### Example analysis: [North American Wolves](https://rpubs.com/cmonstr/1242635)
+### Example analysis: [North American Wolves](https://rpubs.com/cmonstr/1268375)
 Download Rmarkdown script `RDAforest_wolves.Rmd` and the dataset `wolf_v4.RData` to replicate this.
 
 ### Suggested readings
