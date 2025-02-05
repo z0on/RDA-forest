@@ -90,11 +90,11 @@ Since under pure isolation-by-distance genetic distances are expected to look li
 ```{r}
 
 # getting the first two PCs of log-distance matrix
-logd.ord=capscale(log(distGCD+1)~1)
-pcs.logd=scores(logd.ord,scaling=1,display="sites",choices=c(1:2))
+d.ord=capscale(distGCD~1)
+pcs.d=scores(d.ord,scaling=1,display="sites",choices=c(1:2))
 
 # constructing and plotting partial ordination
-ord1=capscale(cordist~1+Condition(as.matrix(pcs.logd)))
+ord1=capscale(cordist~1+Condition(as.matrix(pcs.d)))
 plot(ord1$CA$eig/sum(ord1$CA$eig),xlab="PC",ylab="proportion of variance explained")
 so1=data.frame(scores(ord1,scaling=1,display="sites"))
 ggplot(so1,aes(MDS1,MDS2,color=ecotype$ecotype))+geom_point()+coord_equal()+theme_bw()
@@ -135,7 +135,7 @@ eigen.var=(ord1$CA$eig/sum(ord1$CA$eig))[names(gf$result)]
 sum(eigen.var*gf$result)
 ```
 
-about 14%, it looks like.\
+about 12.5%, it looks like.\
 \
 Let's plot importances of all predictors. These are properly scaled to correspond to the proportion of variance explained by the predictor in the whole dataset.\
 ```{r}
@@ -180,7 +180,7 @@ This procedure can be made less strict (i.e. retain more predictors) by setting 
 Note: this step will take a bit.
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-mm=mtrySelJack(Y=cordist,X=env,covariates=pcs.logd,nreps=30, prop.positive.cutoff=0.5, top.pcs=tokeep)
+mm=mtrySelJack(Y=cordist,X=env,covariates=pcs.d,nreps=30,prop.positive.cutoff=0.5, top.pcs=tokeep)
 ```
 
 Which environmental variables pass the selection process?
@@ -204,16 +204,16 @@ ggplot(mm$prop.positive,aes(var,prop.positive))+
 ```
 
 ## Assessing confidence in importances; forming predictions
-We are only using the variables we selected above. Note that we are still using `pcs.logd` as a covariate, to account for IBD.\ `newX` here is a dataframe of environmental conditions across the landscape where adaptation is to be predicted. This data table must contain all the predictors that the model uses.\
+We are only using the variables we selected above. Note that we are still using `pcs.d` as a covariate, to account for IBD.\ `newX` here is a dataframe of environmental conditions across the landscape where adaptation is to be predicted. This data table must contain all the predictors that the model uses.\
 \
 We will make predictions for the present-day environment, and for the future environment.\
 \
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # present-day
-oj=ordinationJackknife(Y=cordist,X=env[,mm$goodvars],newX=envc,covariates=pcs.logd,nreps=20,top.pcs=tokeep,extra=0.1)
+oj=ordinationJackknife(Y=cordist,X=env[,mm$goodvars],newX=envc,covariates=pcs.d,nreps=20,top.pcs=tokeep,extra=0.1)
 # future
-ojf=ordinationJackknife(Y=cordist,X=env[,mm$goodvars],newX=envf,covariates=pcs.logd,nreps=20,top.pcs=tokeep,extra=0.1)
+ojf=ordinationJackknife(Y=cordist,X=env[,mm$goodvars],newX=envf,covariates=pcs.d,nreps=20,top.pcs=tokeep,extra=0.1)
 # save(mm,gf,oj,ojf,file="models_wolf_vFeb25.RData")
 
 ```
@@ -241,7 +241,7 @@ xy2=envc[goods,c("x","y")]
 names(xy2)=c("lon","lat")
 rfpreds=oj$predictions.direct
 turnovers=oj$predictions.turnover
-bests=names(oj$median.importance)[1:4]
+bests=names(oj$median.importance)
 ```
 
 ### Maps with PCAs and clustering info
@@ -260,7 +260,7 @@ pa0=plot_adaptation(rfpreds,ras2[,bests],xy2,main="unclustered",
                     scal=10,
                     jitscale=0.05,
                     # options affecting colors:
-                    color.scheme="010",
+                    color.scheme="011",
                     lighten=0.8
                     )
 ```
@@ -280,7 +280,7 @@ pa1=plot_adaptation(rfpreds,ras2[,bests],xy2,main="direct preds",
                     scal=10,
                     jitscale=0.05,
                     # options affecting map and PCA colors:
-                    color.scheme="010",
+                    color.scheme="011",
                     lighten=0.8,
                     # options affecting clustering:
                     cluster.guide = NULL,
@@ -298,7 +298,7 @@ pa2=plot_adaptation(rfpreds,ras2[,bests],xy2,main="turnovers",
                     scal=10,
                     jitscale=0.05,
                     # options affecting map and PCA colors:
-                    color.scheme="010",
+                    color.scheme="011",
                     lighten=0.8,
                     # options affecting clustering:
                     cluster.guide = turnovers,
@@ -418,7 +418,7 @@ cordist.i=1-cor(t(rbind(geno0,geno.i)))
 Building the landscape model without the lone wolf (will take a while...):\
 \
 ```{r results='hide', message=FALSE, warning=FALSE}
-oj0=ordinationJackknife(Y=cordist0,X=env[-i,mm$goodvars],newX=envc,covariates=pcs.logd[-i,],nreps=20,top.pcs=tokeep,extra=0.1)
+oj0=ordinationJackknife(Y=cordist0,X=env[-i,mm$goodvars],newX=envc,covariates=pcs.d[-i,],nreps=20,top.pcs=tokeep,extra=0.1)
 ```
 
 Now we predict gPCs for the unknown wolf and calculate its mismatch with the landscape:\
@@ -427,7 +427,7 @@ Now we predict gPCs for the unknown wolf and calculate its mismatch with the lan
 ```{r message=FALSE, warning=FALSE}
 
 # step one: getting gPCs for the other (model-building) wolves
-ord0=capscale(cordist0~1+Condition(as.matrix(pcs.logd[-i,])))
+ord0=capscale(cordist0~1+Condition(as.matrix(pcs.d[-i,])))
 sc0=scores(ord0, scaling=1, display="sites",choices=c(1:40))
 
 # predicting gPCs for the same old wolves plus the new "lone wolf"
