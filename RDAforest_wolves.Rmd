@@ -1,0 +1,458 @@
+---
+title: "RDA-forest: North American wolves"
+# output: rmarkdown::github_document
+output: 
+  html_document:
+    keep_md: true
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Genotypes are from [Brenna Forester tutorial](https://popgen.nescent.org/2018-03-27_RDA_GEA.html)\
+Original wolf data are from [Schweizer et al. (2015) Molecular Ecology, Dryad c9b25](https://datadryad.org/stash/dataset/doi:10.5061/dryad.c9b25)\
+\
+Please see `README.md` at <https://github.com/z0on/RDA-forest> for `RDAforest` package installation instructions and overview of functions.\
+\
+Loading packages:
+```{r message=FALSE, warning=FALSE}
+library(RDAforest)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(terra)
+library(viridis)
+landscape=st_as_sf(ne_countries(scale="medium",continent="north america"))
+```
+## Loading all data:
+```{r}
+ll=load("./wolf_v5.RData")
+ll
+```
+#### What are those dataframes?\
+**geno**: genotypes of 94 wolves at sites with allele freq >0.05, in 0,1,2 format\
+**env**: subset of environmental variables that we will use for modeling, for the 94 wolves\
+**latlon**: coordinates of sampled wolves\
+**envc**: raster of coordinates and variable values for today\
+**envf**: raster of coordinates and variable values for future (2041-2060)\
+**ecotype**: table of sample names and their designated ecotype, according to Schweizer et al., 2015\
+**env.full**: all bioclimatic variables (+ treecover) for the 94 wolves. Will not use it here (for consistency with the RDA-forest paper), but you can try exploring how it will work if we use all 19 variables instead of a small subset.\
+\
+
+## Data exploration
+Let's compute genetic distances based on genotypic correlation, and make an unconstrained ordination:
+```{r}
+# distances:
+cordist=1-cor(t(geno))
+# ordination:
+ord=capscale(cordist~1)
+```
+Proportion of variance explained by PCs ("MDS" is the mathematically identical to principal components so we will call them PCs):
+```{r}
+plot(ord$CA$eig/sum(ord$CA$eig),xlab="PC",ylab="proportion of variance explained")
+```
+
+So we clearly have some very interesting leading principal components, perhaps 7-10.\
+Extracting scores, plotting ordination:
+```{r}
+so=data.frame(scores(ord,scaling=1,display="sites"))
+ggplot(so,aes(MDS1,MDS2,color=ecotype$ecotype))+geom_point()+coord_equal()+theme_bw()
+```
+
+This looks pretty but the question is, how much of this structure is due to just **isolation-by-distance (IBD)**? Meaning, the fact that wolves found near each other are more similar genetically?\
+
+#### Exploring IBD
+Plotting genetic distance against geographic distance to see if there is a sloping cline (or multiple sloping clines):
+```{r warning=FALSE, message=FALSE}
+# converting lat, lon to great circle distances
+GCD=gcd.dist(latlon)
+latlon.gcd=GCD[[1]]
+distGCD=GCD[[2]]
+
+plot(as.dist(cordist)~distGCD,pch=16,cex=0.6,col=rgb(0,0,0,alpha=0.2))
+
+# Alternative: use Universal Transverse Mercator coordinates instead of great circle-based 
+# (for situations when you want to keep spatial coordinates among predictors and then use them for inferring adaptation on landscape)
+# epsg.code=epsg.maker(mean(range(latlon$lon)),mean(range(latlon$lat)))
+# latlon.utm=latlon2UTM(latlon, epsg.code)
+
+```
+
+Looks like there is a sloping cline! To make it more formal, let's test for significance of correlation between genetic and geographic distances:
+```{r}
+protest(capscale(distGCD~1),capscale(cordist~1))
+```
+
+Definitely a highly significant correlation. **We must regress latitude and longitude out of genetic data** when computing ordination. Let's see how it will look then:
+```{r}
+latlon.gcd=GCD[[1]]
+ord1=capscale(cordist~1+Condition(as.matrix(latlon.gcd)))
+plot(ord1$CA$eig/sum(ord1$CA$eig),xlab="PC",ylab="proportion of variance explained")
+so1=data.frame(scores(ord1,scaling=1,display="sites"))
+ggplot(so1,aes(MDS1,MDS2,color=ecotype$ecotype))+geom_point()+coord_equal()+theme_bw()
+```
+
+## Cleaning predictors
+Let's see if any of our predictors (bioclimatic variables +  tree cover) are super correlated with each other
+```{r message=FALSE, warning=FALSE}
+pc=hclust(as.dist(1-cor(env)))
+plot(pc)
+abline(h=0.1, col="red")
+```
+
+Variables below red line are correlated with r > 0.9! Still let's keep all of them for now, for consistency with the RDA-forest paper.
+
+## Exploratory RDA-forest analysis
+We will use all predictors and more leading PCs (40, specified by the option `pcs2keep=c(1:40)`) that we will likely need, just to see how it looks. Note that we are using *ord1* ordination object here, the one with *lat* and *lon* regressed out.
+```{r message=FALSE, warning=FALSE,results='hide'}
+gf=makeGF(ord1,env,pcs2keep=c(1:40))
+```
+
+Which PCs are predicted?
+```{r}
+# predicted PCs, and how well they are predicted (per-PC R2s)
+gf$result
+```
+
+These values are cross-validation R-squares (R2), the proportion of variance explained along each PC. Some are pretty high! \
+Looks like we must keep the first 15 MDSes .\
+\
+So how much total variance does our model capture?
+```{r}
+# rescaling to proportion of total variance (based on eigenvalues in ord1)
+eigen.var=(ord1$CA$eig/sum(ord1$CA$eig))[names(gf$result)]
+# total variance explained by model
+sum(eigen.var*gf$result)
+```
+
+about 12.5%, it looks like.\
+\
+Let's plot importances of all predictors. These are properly scaled to correspond to the proportion of variance explained by the predictor in the whole dataset.\
+```{r}
+# setting the number of PCs to keep
+tokeep=15
+# computing properly scaled importances:
+imps=data.frame(importance_RDAforest(gf,ord1))
+# some data frame housekeeping...
+names(imps)="R2"
+imps$var=row.names(imps)
+# reordering predictors by their importances:
+imps$var=factor(imps$var,levels=imps$var[order(imps$R2)])
+# plotting
+ggplot(imps,aes(var,R2))+geom_bar(stat="identity")+coord_flip()+theme_bw()
+```
+
+R2 values above may seem low to people used to linear regressions. The main reason is that, unlike in linear regressions, the R2 here is computed on samples that were **not** used for model building ("hold-out" samples). So this is a true predictive power. In linear regression, the model fit is tested on the data used to build the same model, which always over-estimates the predictive power of the model (I wonder why people keep doing this).\
+\
+
+### Turnover curves
+
+Turnover curves is the central concept of the gradient forest method, [Ellis et al 2012](https://doi.org/10.1890/11-0252.1), greatly helping interpretation of random forest models. These curves reflect how much the predicted variable (y axis) changes as you move along the range of predictor (x axis). **Importantly, although turnover curves look like monotonous accumulation of difference across the predictor scale, this may not necessarily be the case.** The key  meaningful information in these plots are boundaries between distinct states, which look like steps, and the magnitude of transitions, which are  heights of those steps. Remember that **multiple subsequent steps may lead back to the same  state**.\
+\
+Let's plot turnover curves for the top 6 predictors:
+```{r message=FALSE, warning=FALSE}
+plot_gf_turnovers(gf,imps$var[1:6])
+```
+
+The colored plots are turnovers of individual PCs (from MDS1 to MDS8), and the black-and-white plots are their averages. Colored plots don't have predictor labels below x-axes, but their order corresponds to the black and white plots, which are labeled. You can see three things: \
+  - which PC is affected by which variable. For example, PC1 (`MDS1`, red line on colored plots) is strongly affected by `MaxT_WarmM` (and a couple other variables). \
+  - where in the predictor range the community transitions to a different state. For example, for `MinT_ColdM` the largest transition is at about -13 degrees C (black and white plot in the middle of upper row). \
+  - scale of the `y` axes shows how much variance is explained by each predictor for each PC (colored plots), and average across all PCs (back and white curves). Proportion of total data variance explained is lower because each PC explains a different fraction of it; we will have properly scaled turnover curves later on.\
+\
+
+### Variable selection
+
+To discard predictors that only appear important because they are correlated with some truly important variables, we use the `mtry` criterion. `mtry` is the number of randomly chosen predictors to find the next split in the tree. With higher `mtry` there is a higher chance that the actual driver is chosen together with the non-influential correlated variable and is then used for the split. As a result, the correlated variable is used less often, which drives its importance down, as observed in simulations by [Strobl et al 2008](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-307). So, we fit two models with different `mtry` settings to each ordination jackknife replicate. Predictors consistently showing diminished raw importance at the higher mtry setting are then discarded.\
+\
+This procedure can be made less strict (i.e. retain more predictors) by setting `prop.positive.cutoff`, the proportion of replicates in which importance has to increase under higher `mtry`, to something less than 0.333 (the default). Another way to achieve less strict selection is to manually specify  `mintry = 3, maxtry = 6` (these would be used by default for situations with less than 12 predictors).\ 
+\
+Note: this step will take a bit.
+
+```{r results='hide', message=FALSE, warning=FALSE}
+mm=mtrySelJack(Y=cordist,X=env,covariates=latlon.gcd,nreps=31, prop.positive.cutoff=0.5,top.pcs=tokeep)
+```
+
+Which environmental variables pass the selection process?
+```{r}
+mm$goodvars
+```
+Boxplot of predictor importance change depending on `mtry`:
+```{r}
+ggplot(mm$delta,aes(var,values))+
+  geom_boxplot(outlier.shape = NA)+
+  coord_flip()+
+  geom_hline(yintercept=0,col="red")
+```
+
+Bar chart of proportion of positive change in response to higher `mtry`. Good variables would be the ones above the red line (change `yintersept` setting here to match `prop.positive.cutoff` in the call to `mtrySelJack`) :
+```{r}
+ggplot(mm$prop.positive,aes(var,prop.positive))+
+  geom_bar(stat="identity")+
+  coord_flip()+
+  geom_hline(yintercept=0.5,col="red")
+```
+
+## Assessing confidence in importances; forming predictions
+We are only using the variables we selected above. Note that we are still using `latlon.gcd` as a covariate, to account for IBD.\ `newX` here is a dataframe of environmenal conditions across the landscape where adaptation is to be predicted. This data table must contain all the predictors that the model uses.\
+\
+We will make predictions for the present-day environment, and for the future environment.\
+\
+
+```{r results='hide', message=FALSE, warning=FALSE}
+# present-day
+oj=ordinationJackknife(Y=cordist,X=env[,mm$goodvars],newX=envc,covariates=latlon.gcd,nreps=25,top.pcs=tokeep,extra=0.1)
+# future
+ojf=ordinationJackknife(Y=cordist,X=env[,mm$goodvars],newX=envf,covariates=latlon.gcd,nreps=25,top.pcs=tokeep,extra=0.2)
+# save(mm,gf,oj,ojf,file="models_wolf_v4.2.RData")
+
+```
+Plotting predicted turnover curves for the top three predictors. This time the numbers on y axis are meaningful - they reflect the proportion of total variance explained by the predictor. Vertical grey stripes indicate where the original data points used to build the model fall.
+```{r  warning=FALSE}
+vars=names(env)[names(env) %in% mm$goodvars]
+for(i in 1:length(vars)){
+ plot_turnover(oj,envc[oj$goodrows,],vars[i],envdata=env[,vars[i]])
+}
+```
+
+Plotting boxplots of importance (proportion of total variance explained)
+```{r}
+ggplot(oj$all.importances,aes(variable,importance))+geom_boxplot(outlier.shape = NA)+coord_flip()
+```
+
+## Plotting maps of predicted adaptive neighborhoods\
+
+Forming predictions based on averaging replicates from `ordinationJackknife`:
+```{r  message=FALSE, warning=FALSE}
+# spots on the map that are within modeled parameter range:
+goods=oj$goodrows
+# predictor data restricted to only those spots:
+ras2=envc[which(goods),]
+xy2=envc[goods,c("x","y")]
+names(xy2)=c("lon","lat")
+rfpreds=oj$predictions.direct
+turnovers=oj$predictions.turnover
+bests=names(oj$median.importance)[1:4]
+```
+
+### Maps with PCAs and clustering info
+
+First, we plot unclustered random forest predictions. This will produce two plots: \
+- PCA plot of predicted values with arrows showing how the top four variables that passed `mtrySelJack` procedure fit to it (by linear regression, RDA-style). Number of predictor arrows shown can be changed in the chunk above. The proportions of that plot are controlled by three parameters:\
+  - `rangeExp` : increasing this value will make the PCA plot smaller relative to the plotting area\
+  - `scal` : increasing this value will make the arrows shorter\
+  - `jitscale` : increasing this value will increase the distance from arrow tips to arrow labels. The labels are jittered somewhat every time, so you might want to rerun the same command several times until you get them positioned nicely.\
+- Actual map of predicted adaptations, in square coordinates (we will replot it later in "nice" coordinates). Similar colors indicate similar adaptations. To change colors on this map (and on the PCA plot), try varying color.scheme option to plot_adaptation, like "001","100","010","111" etc. The saturation of the colors is controlled by `lighten` option; setting it to zero will produce maximum saturation. \
+
+```{r}
+pa0=plot_adaptation(rfpreds,ras2[,bests],xy2,main="unclustered",
+                    # options affecting PCA plot:
+                    rangeExp=1.5,
+                    scal=10,
+                    jitscale=0.05,
+                    # options affecting colors:
+                    color.scheme="001",
+                    lighten=0.8
+                    )
+```
+
+
+#### Clustering into "adaptive neighborhoods".
+Now our goal is to break the continuous colors in the map above into "adaptive neighborhoods" - bounded areas likely to contain similarly-adapted organisms. There are two ways doing it. **One way is to simply cluster spatial points based on random forest predictions**, corresponding to colors on the map above. We will ask for more clusters than we expect (based on the number of wolf ecotypes, which is six) with the idea that we will then merge the clusters that are too similar. There are two options affecting this process: \
+- `nclust` : number of initial clusters;\
+- `cluster.merge.level` : threshold for merging, as a fraction of the maximum dissimilarity observed between clusters.\
+With these options to `plot_adaptation`, an additional plot will be produced, showing hierarchical clustering tree of the spatial clusters, with the red line showing the merging threshold. This can be used as the guide to adjust `nclust` and `cluster.merge.threshold`, although there are no formal criteria how to do it.\
+Also note that the map now has numbers on it - these correspond to merged clusters in the tree plot.
+
+```{r fig.cap="main title reflects clustering mode used"}
+pa1=plot_adaptation(rfpreds,ras2[,bests],xy2,main="direct preds",
+                    # options affecting PCA plot:
+                    rangeExp=1.5,
+                    scal=10,
+                    jitscale=0.05,
+                    # options affecting map and PCA colors:
+                    color.scheme="001",
+                    lighten=0.8,
+                    # options affecting clustering:
+                    cluster.guide = NULL,
+                    nclust=15,
+                    cluster.merge.level=0.333 # the default
+                    )
+```
+
+The second way of clustering is to **form clusters based on turnover curves, but merge them according to similarity of direct random forest predictions** within them. In simulations this mode generates less noisy adaptive neighborhood maps than clustering based on predictions themselves. This is done by including additional option, `cluster.guide`:
+
+```{r}
+pa2=plot_adaptation(rfpreds,ras2[,bests],xy2,main="turnovers",
+                    # options affecting PCA plot:
+                    rangeExp=1.5,
+                    scal=10,
+                    jitscale=0.05,
+                    # options affecting map and PCA colors:
+                    color.scheme="001",
+                    lighten=0.8,
+                    # options affecting clustering:
+                    cluster.guide = turnovers,
+                    nclust=12,
+                    cluster.merge.level=0.25
+                    )
+```
+
+### "Nice" maps: the same maps in Universal Transverse Mercator (UTM) coordinates
+adding "overlay.points" of original samples, colored by ecotype.\
+Unclustered:
+```{r message=FALSE, warning=FALSE}
+plot_nice_map(xy2,mapdata=landscape,map.on.top=F,size=0.8,cols=pa0$colors,overlay.points = latlon,size.points=2,cols.points = ecotype$ecotype) 
+
+```
+
+Direct clustering based on RF predictions. 
+```{r message=FALSE, warning=FALSE}
+plot_nice_map(xy2,mapdata=landscape,map.on.top=F,cols=pa1$colors,size=0.8,overlay.points = latlon,cols.points = ecotype$ecotype,size.points=2) 
+```
+
+That this map nicely separates ecotypes except it is having a bit of difficulty with "Arctic" - "High Arctic" distinction. Note that this map suggests that "West forest" and "Atlantic forest" ecotypes are similar, adaptation-wise.
+
+Finally, clustering based on turnover curves.
+```{r message=FALSE, warning=FALSE}
+plot_nice_map(xy2,mapdata=landscape,map.on.top=F,size=0.8,cols=pa2$colors,overlay.points = latlon,cols.points = ecotype$ecotype,size.points=2) 
+```
+
+For this dataset, the maps based on different clustering look quite similar. They generally recapture designated ecotypes and identify major boundaries between arctic, mid-continent, and the British Columbia environments. There remains some uncertainty about boundaries between ecotypes that are more similar to each other: the boundary between Arctic and High Arctic and the boundary between Boreal Forest and other two forest ecotypes.
+
+### Genetic offset: where wolves are the most endangered by climate change
+
+Genetic offset is simply the Euclidean distance between future and present-day gPC predictions for each point on the landscape. To make it more interpretable, we scale it to the 90%-th quantile of the difference observed between present-day gPC predictions across landscape: then the offset of 1 would mean that survival at this specific location in the future will require almost as much adaptation as currently observed across the whole study area.\
+\
+We have already generated future predictions (`ojf`), so let's compare them to the present-day (`oj`). The function `gen_offset_oj()` requires four arguments: the two `ordinationJaccknife()` objects for present-day and future, and two sets of spatial coordinates, for present-day and future predictions (for aligning the two).\
+
+```{r message=FALSE, warning=FALSE}
+OFFS=gen_offset_oj(X=oj,Y=ojf,sx=envc[,1:2],sy=envf[,1:2])
+
+# plotting the offset as a raster on the map (square coordinates):
+
+# # simple way
+# plot(terra::rast(OFFS),col=rev(map.pal("inferno")))
+
+# fancy way
+#pdf("wolves_gen_offset.pdf",height=5, width=7)
+gg=ggplot()+geom_sf(data=landscape)+
+  xlim(min(OFFS$x),max(OFFS$x))+
+  ylim(min(OFFS$y), max(OFFS$y))+
+  theme_minimal()+
+  geom_raster(data=OFFS,aes(x=x,y=y,fill=offset))+scale_fill_viridis(option="inferno",direction = -1)
+plot(gg)
+#dev.off()
+```
+
+Here (and in the subsequent maps) darker color means worse. We see that East and West coast wolves are not very endangered, Arctic wolves are in real trouble, and mid-continent wolves are in between the two extremes.
+
+### Assisted gene flow planning
+
+Let's imagine we are managing a wildlife park, and we want to breed local wolves with wolves from elsewhere to bring genetic variants that would promote adaptation to future conditions. Where should we get such wolves from? From a location where wolf adaptation *now* is similar to what will be needed in our park *in the future*. In other words, we need to find where present-day gPCs predictions are similar to the future gPCs predictions at our park's location. Function `env_mismatch()` does that:\
+\
+```{r message=FALSE, warning=FALSE}
+# lat, lon coordinates of our park (somewhere in the middle of Canada)
+park=c(-107, 55)
+# raster of future gPCs
+rfut=terra::rast(data.frame(cbind(envf[ojf$goodrows,1:2],ojf$predictions.direct)))
+# extracting future adaptation needed in our park
+park.fut=terra::extract(x = rfut, y = data.frame(rbind(park)), method="bilinear" )[-1]
+# rescaling factor: 90% quantile of present-day adaptation disparity
+sc=adapt_scale(oj$predictions.direct)[2]
+
+# computing distances between future-needed and present-day adaptation
+agf=env_mismatch(X=park.fut,Y=oj,sy=envc[,1:2],sc=sc)
+
+# plot agf suitability, simple way
+# plot(terra::rast(agf),col=rev(map.pal("inferno")))
+# points(park[1],park[2],pch=0)
+
+# fancy way
+#pdf("wolves_agf.pdf",height=5, width=7)
+gg=ggplot()+geom_sf(data=landscape)+
+  xlim(min(agf$x),max(agf$x))+
+  ylim(min(agf$y), max(agf$y))+
+  theme_minimal()+
+  geom_raster(data=agf,aes(x=x,y=y,fill=env.mismatch))+scale_fill_viridis(option="inferno",direction = -1)+
+  geom_point(data=data.frame(rbind(park)),aes(X1,X2),pch=0,size=2,col="cyan")
+plot(gg)
+#dev.off()
+```
+
+Our park is the little square in the middle. The preferred area for our assisted gene flow provenance is south-southeast of the park.
+
+### Habitat suitability for a given individual
+
+Now consider a situation when we have a genotyped wolf of unknown origin, and we want to release it into the wild so it has the best chance of survival. This is the same problem that we just solved above for assisted gene flow: we need to calculate environmental mismatch across lanscape for a specific vector or gPCs, only this time this vector characterizes an individual wolf, not the future adaptation needed at our wildlife park.\
+\
+So let's pick an "lone wolf" from our pack of 94, build a `ordinationJackknife` model without it, and then predict where it belongs.
+\
+```{r message=FALSE, warning=FALSE}
+#  This one is High Arctic ecotype. Feel free to pick any other, it is quite fun.
+
+i=65
+#print(ecotype[i,])
+
+# data to build a model
+geno0=geno[-i,]
+# our lone wolf
+geno.i=geno[i,]
+
+# distance matrix for model building
+cordist0=1-cor(t(geno0))
+
+# adding the lone wolf to the matrix, to predict its gPCs later
+cordist.i=1-cor(t(rbind(geno0,geno.i)))
+```
+
+Building the landscape model without the lone wolf (will take a while...):\
+\
+```{r results='hide', message=FALSE, warning=FALSE}
+oj0=ordinationJackknife(Y=cordist0,X=env[-i,mm$goodvars],newX=envc,covariates=latlon.gcd[-i,],nreps=30,top.pcs=tokeep,extra=0.1)
+```
+
+Now we predict gPCs for the unknown wolf and calculate its mismatch with the landscape:\
+\
+
+```{r message=FALSE, warning=FALSE}
+
+# step one: getting gPCs for the other (model-building) wolves
+ord0=capscale(cordist0~1+Condition(as.matrix(latlon.gcd[-i,])))
+sc0=scores(ord0, scaling=1, display="sites",choices=c(1:40))
+
+# predicting gPCs for the same old wolves plus the new "lone wolf"
+scp=predict(ord0,cordist.i,type='sp',scaling="sites")[,1:40]
+
+# making sure the predictions for the new wolf align (mostly in terms of gPC sign) with the model
+pro=procrustes(sc0,scp[-nrow(cordist.i),],scale=FALSE)
+# at last, getting the predicted gPCs for the lone wolf
+wi=as.vector(as.numeric(pro$rotation %*% scp[nrow(scp),]))[1:tokeep]
+sc=adapt_scale(oj0$predictions.direct)[2]
+
+# calculating environmental mismatch
+home=env_mismatch(X=wi,Y=oj0,sy=envc[,1:2],sc=sc)
+
+# plot habitat mismatch for our wolf:
+
+# # simple way
+# plot(terra::rast(home),col=rev(map.pal("magma")))
+# # this is where the wolf actually came from:
+# points(latlon[i,1],latlon[i,2],pch=0)
+
+# fancy way
+#pdf("wolves_loneWolf.pdf",height=5, width=7)
+gg=ggplot()+geom_sf(data=landscape)+
+  xlim(min(home$x),max(home$x))+
+  ylim(min(home$y), max(home$y))+
+  theme_minimal()+
+  geom_raster(data=home,aes(x=x,y=y,fill=env.mismatch))+scale_fill_viridis(option="inferno",direction = -1)+
+  geom_point(data=data.frame(latlon[i,]),aes(lon,lat),pch=0,col="cyan",size=2)
+plot(gg)
+#dev.off()
+
+```
+
+Looks like our lone wolf wandered to the edge of its comfort zone - the lightest area on the map (best habitat suitability for its genotype) shows that it belongs to the High Arctic (which is the correct ecotype), but the location where it was sampled is in a darker area next to it.\
+\
+
