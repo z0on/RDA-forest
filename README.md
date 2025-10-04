@@ -29,16 +29,20 @@ install.packages("/path/to/downloaded/file/RDAforest_2.6.8.tar.gz")
 library(RDAforest)
 ```
 
-The package depends on `vegan`, `dplyr`, and `gradientForest`. Installing `gradientForest` is more involved than a typical R package since it must be compiled from source. 
+The package depends on `vegan`, `dplyr`, `extendedForest`, and `gradientForest`. Installing the latter two is more involved than a typical R package since it must be compiled from source. 
 
 First, install `devtools`. 
 ```R
 install.packages("devtools")
 ```
 This may require additional installations outside R. Hopefully they will happen automatically, if not, see [here](https://www.r-project.org/nosvn/pandoc/devtools.html).
-Then:
+
+Then install `extendedForest` and `gradientForest` from source `tar.gz` files provided with this repo. I had to edit `extendedForest` code a bit to make it compatible with current compiler requirements. Last time I checked, it was installable on Mac with M1 chip and MacOS 15.7.1, R version 4.5.1, Rstudio version 2025.09.1. 
+
+To install packages from local sources:
 ```R
-install.packages("gradientForest", repos="http://R-Forge.R-project.org")
+install.packages("/path/to/RDAforest/extendedForest_1.6.2.1.tar.gz", repos = NULL, type = "source")
+install.packages("/path/to/RDAforest/gradientForest_0.1-37.tar.gz", repos = NULL, type = "source")
 ```
 If this one fails, chances are, you need to install `gfortran` first, FOR YOUR SYSTEM from here:
 https://gcc.gnu.org/wiki/GFortranBinaries or, for Mac, https://github.com/fxcoudert/gfortran-for-macOS/releases. If there is no precompiled `gfortran` for your combination of processor and OS, choose the one for the closest OS for your processor.
