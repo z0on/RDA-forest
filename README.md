@@ -44,7 +44,7 @@ To install packages from local sources:
 install.packages("/path/to/RDAforest/extendedForest_1.6.2.1.tar.gz", repos = NULL, type = "source")
 install.packages("/path/to/RDAforest/gradientForest_0.1-37.tar.gz", repos = NULL, type = "source")
 ```
-If this one fails, chances are, you need to install `gfortran` first, FOR YOUR SYSTEM from here:
+If installation of `gradientForest` fails, chances are, you need to install `gfortran` first, FOR YOUR SYSTEM from here:
 https://gcc.gnu.org/wiki/GFortranBinaries or, for Mac, https://github.com/fxcoudert/gfortran-for-macOS/releases. If there is no precompiled `gfortran` for your combination of processor and OS, choose the one for the closest OS for your processor.
 On a Mac you might also need to point your Rstudio compiler to the location `gfortran` is installed at, by creating/modifying the file *~/.R/Makevars*. The following spell in `Terminal` should work:
 ```sh
