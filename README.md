@@ -65,7 +65,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`Reselect`** : applies new criteria for choosing important predictors to a precomputed `mtrySelJack` object.
 - **`latlon2UTM`**, **`epsg.maker`**, **`bw_choose`** ,**`gen_offset`**,**`adapt_scale`** - various accessory functions.
 
-### Example analysis: [North American Wolves](https://rpubs.com/cmonstr/1268717)
+### Example analysis: [North American Wolves](https://z0on.github.io/RDA-forest/wolves_rendered_2.9.2.html)
 Download Rmarkdown script `RDAforest_wolves_v2.9.2.Rmd` and the dataset `wolf_v4.RData` to replicate this.
 
 ### Suggested readings
