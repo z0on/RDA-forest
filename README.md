@@ -10,7 +10,7 @@ Major changes between v.2.6.1 and 2.9.2 (see [RDAForest News](https://docs.googl
    - splitting model fitting and adaptation prediction into two functions (`ojFit` and `ojPredict` instead of the single `ordinationJackknife`) for proper calculation of genetic offsets;
    - no dependency on `extendedForest` and `gradientForest`.
 
-Big thanks to **Daniel "Danny" Hedgecock** for pointing out these problems and initiating changes.
+Big thanks to **Daniel "Danny" Hancock** for pointing out these problems and initiating changes.
 
 ### Application to Genotype-Environment Association (GEA) analysis
 
