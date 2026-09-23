@@ -5,7 +5,7 @@
 
 RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). We call this approach RDAforest, to reflect the fact that it has the same purpose as redundancy analysis (RDA) - to find associations between highly dimensional data and multiple predictor variables - except RDA-forest relies on more versatile RF instead of linear regressions. 
 
-Major changes between v.2.6.1 and 2.9.2 (see [RDAForest News](https://docs.google.com/document/d/1Rho1cysbMXXXeFAzNCxGLB0tNqZuO4WlBgvCPj9F68c/edit?usp=sharing) for details:
+Major changes between v.2.6.1 and 2.9.2 (see [RDAForest News](https://docs.google.com/document/d/1Rho1cysbMXXXeFAzNCxGLB0tNqZuO4WlBgvCPj9F68c/edit?usp=sharing)) for details:
    - proper handling of situations where multiple individuals are sampled from the same site: using blocked resamplong during random forest building, or analyzing per-site genetic medians (*site.repeats* option in all model fitting functions);
    - splitting model fitting and adaptation prediction into two functions (`ojFit` and `ojPredict` instead of the single `ordinationJackknife`) for proper calculation of genetic offsets;
    - no dependency on `extendedForest` and `gradientForest`.
