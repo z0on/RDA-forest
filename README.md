@@ -5,6 +5,12 @@
 
 RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). We call this approach RDAforest, to reflect the fact that it has the same purpose as redundancy analysis (RDA) - to find associations between highly dimensional data and multiple predictor variables - except RDA-forest relies on more versatile RF instead of linear regressions. 
 
+Major changes between v.2.6.1 and 2.9.2 (see [RDAForest News](https://docs.google.com/document/d/1Rho1cysbMXXXeFAzNCxGLB0tNqZuO4WlBgvCPj9F68c/edit?usp=sharing) for details:
+   - proper handling of situations where multiple individuals are sampled from the same site: using blocked resamplong during random forest building, or analyzing per-site genetic medians (*site.repeats* option in all model fitting functions);
+   - splitting model fitting and adaptation prediction into two functions (`ojFit` and `ojPredict` instead of the single `ordinationJackknife`) for proper calculation of genetic offsets;
+   - no dependency on `extendedForest` and `gradientForest`.
+ 
+
 ### Application to Genotype-Environment Association (GEA) analysis
 
 In the example here *Y* is the matrix of genetic distances between individuals and *X* is a matrix of environmental variables measured for all individuals in *Y*. Unlike most other GEA methods, we are not trying to find specific loci associated with environment, but want to identify environmental variables that drive local adaptation resulting in selection against immigrants, or [isolation by environment](https://doi.org/10.1111/mec.12938). Since such selection acts directly on immigrants, its effect on genomic variation is essentialy the same as physical isolation - it creates genome-wide genetic structure (higher genetic similarity between like-adapted individuals). Even if selection is weak and takes several generations, the genetic signal would still be detectable on the whole-genome scale since adaptation is predominantly polygenic and physical linkage to adaptive loci is still extensive. Our method aims to identify environmental parameters driving patterns of genetic similarity, captured by the leading principal components (PCs) of the genetic distance matrix. We also provide solutions to visualize the risk of future genetic maladaptation ("genetic offset"), plan assisted gene flow interventions, and identify most suitable locations for a given individual (based on its genotype).
@@ -23,52 +29,28 @@ In addition, there are two novel ideas in our RDA-forest method:
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_2.6.10.tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_2.9.2.tar.gz`. To install it, run this in Rstudio
 ```R
-install.packages("/path/to/downloaded/file/RDAforest_2.6.10.tar.gz")
+install.packages("/path/to/downloaded/file/RDAforest_2.9.2.tar.gz")
 library(RDAforest)
 ```
 
-The package depends on `vegan`, `dplyr`, `extendedForest`, and `gradientForest`. Installing the latter two is more involved than a typical R package since it must be compiled from source. 
+The package depends on `vegan` and `dplyr`. It does not depend on `extendedForest` or `gradientForest`anymore (since version 2.9.2); all the necessary functions from these packages have been recoded and included in the RDAforest package. 
 
-First, install `devtools`. 
-```R
-install.packages("devtools")
-```
-This may require additional installations outside R. Hopefully they will happen automatically, if not, see [here](https://www.r-project.org/nosvn/pandoc/devtools.html).
 
-Then install `extendedForest` and `gradientForest` from source `tar.gz` files provided with this repo. I had to edit `extendedForest` code a bit to make it compatible with current compiler requirements. Last time I checked, it was installable on Mac with M1 chip and MacOS 15.7.1, R version 4.5.1, Rstudio version 2025.09.1. 
-
-To install packages from local sources:
-```R
-install.packages("/path/to/RDAforest/extendedForest_1.6.2.1.tar.gz", repos = NULL, type = "source")
-install.packages("/path/to/RDAforest/gradientForest_0.1-37.tar.gz", repos = NULL, type = "source")
-```
-If installation of `gradientForest` fails, chances are, you need to install `gfortran` first, FOR YOUR SYSTEM from here:
-https://gcc.gnu.org/wiki/GFortranBinaries or, for Mac, https://github.com/fxcoudert/gfortran-for-macOS/releases. If there is no precompiled `gfortran` for your combination of processor and OS, choose the one for the closest OS for your processor.
-On a Mac you might also need to point your Rstudio compiler to the location `gfortran` is installed at, by creating/modifying the file *~/.R/Makevars*. The following spell in `Terminal` should work:
-```sh
-cd
-mkdir .R
-echo "FC = /usr/local/bin/gfortran
-F77 = /usr/local/gfortran
-FLIBS = -L/usr/local/gfortran/lib" >> ~/.R/Makevars
-```
-To check if everything was intalled correctly, do this in Rstudio and see if the package is loaded without errors.
-```R
-library(gradientForest)
-```
 ### RDAforest functions
 All functions have documentation accessible as usual by asking `?functionName` in R, for example to see what are the necessary arguments and what does the function return.
 
 #### Main functions:
-- **`ordinationJackknife`** : Runs `gradientForest` on *nreps* jackknife replicates, each time rebuilding the ordination withholding a fraction of datapoints (default 0.2). Forms two kinds of predictions for the supplied *newX* data, averaging over replicates - turnover curves from gradient forest and straight-up random forest predictions. These can be used for plotting adaptive neighborhoods (`plot_adaptation` function). Makes sure no predictions are made beyond the numeric range of predictors used to fit the model, but can allow a bit of extension specified as fraction of the original range (option *extra*).
-- **`importance_RDAforest`** : Recalculates R2-based importances stored in the `gradientForest` model into proportion of variation attributable to each predictor (takes into account eigenvalues of the ordination that was analyzed).
+- **`ojFit`** : (ordination jackknife fit) Runs `gradientForest` on *nreps* jackknife replicates, each time rebuilding the ordination withholding a fraction of datapoints (default 0.2). Returns all fitted models.
+- **`ojPredict`** : (ordination jackknife predict) Uses models from `ojFit` to forms two kinds of predictions for the supplied *newX* data, averaging over replicates - turnover curves from gradient forest and straight-up random forest predictions. These can be used for plotting adaptive neighborhoods (`plot_adaptation` ) and calculation of genetic offset (`gen_offset_oj`). By default makes no predictions beyond the numeric range of predictors used to fit the model, but can allow a bit of extension specified as fraction of the original range (option *extra*). Option *extra.npred* specifies the number of top predictors to which this extrapolation restriction applies, the less-important predictors will be allowed to extend without limit.
+- **`ordinationJackknife`** : old function that does the job of `ojFit` and `ojPredict` in a single call. Only use (with option *keep.models=FALSE*, to save memory) when there is no plan to calculate genetic offset - which now involves fitting a single model with `ojFit` and making predictions for multiple environments with `ojPredict`.
 - **`mtrySelJack`** : Performs variable selection based on *mtry* criterion: variables that are not important by themselves, only correlated with the actually important ones, begin to lose importance at higher *mtry* setting (Strobl et al 2018). The function runs *nreps*  `ordinationJackknife` replicates, fitting two `gradientForest` models with different *mtry* settings. It then selects variables that do not decrease in importance at higher *mtry*. Can be made more allowing (i.e. retain more predictors) by using lower *mtry* values (add options `mintry=3, maxtry=6`) or lower *prop.positive.cutoff*. Also discards variables whose importance is less than *importance.cutoff* fraction of the best predictor (default 0.1). Default importance scaling is "GF", like in `gradientForest` - average R2 across all predicted variables.
 - **`plot_adaptation`** : Plots first two or three PCs of the supplied matrix (*[result of `ordinationJackknife`]$predictions.direct*), then plots geographical map of adaptation colored according to these PCs. Can color points by their continuous values along PCs, or by cluster they fall into (with *nclust* argument). Clustering is done using function `cluster::clara`. Can use turnover curves (*[result of `ordinationJackknife`]$predictions.turnover*) for clustering (option *clustering.guide*) and merge clusters if they are too similar accoring to *[result of `ordinationJackknife`]$predictions.direct*. In simulations this generates less noisy clustering than clustering random forest predictions straight up. Cluster merging is controlled by *cluster.merge.threshold* parameter, which is specified as the fraction of the maximal observed between-cluster distance (default 0.333).
 - **`plot_nice_map`** : plots a map of adaptive neighborhoods (same as `plot_adaptation`) in Universal Transverse Merkator (UTM) coordinates. Can plot two series of points: the colored raster of adaptive neighborhoods, and (optionally) second series of points assumed to be locations of actual samples used for modeling. 
 - **`gen_offset_oj`** : computes genetic offset (measure of anticipated risk of future maladaptation) based on two series of predictions generated by `ordinationJackknife`, one for present-day and another for the future.
 - **`env_mismatch`** : calculates maladaptation across the landscape for a given set of genetic PCs. Can be used for assisted gene flow planning (find locations that best match required future genetic PCs now), or for finding most suitable environment for an individual based on its genotype.
+- **`importance_RDAforest`** : Recalculates R2-based importances stored in the `gradientForest` model into proportion of variation attributable to each predictor (takes into account eigenvalues of the ordination that was analyzed).
 
 #### Minor/accessory functions:
 - **`dummify`** : Turns a dataframe containing numerical and categorical predictors into fully numerical.
@@ -84,7 +66,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`latlon2UTM`**, **`epsg.maker`**, **`bw_choose`** ,**`gen_offset`**,**`adapt_scale`** - various accessory functions.
 
 ### Example analysis: [North American Wolves](https://rpubs.com/cmonstr/1268717)
-Download Rmarkdown script `RDAforest_wolves.Rmd` and the dataset `wolf_v4.RData` to replicate this.
+Download Rmarkdown script `RDAforest_wolves_v2.9.2.Rmd` and the dataset `wolf_v4.RData` to replicate this.
 
 ### Suggested readings
 - [short and sweet intro into decision trees and random forest](https://towardsdatascience.com/understanding-random-forest-58381e0602d2)
