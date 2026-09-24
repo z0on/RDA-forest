@@ -5,9 +5,10 @@
 
 RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). We call this approach RDAforest, to reflect the fact that it has the same purpose as redundancy analysis (RDA) - to find associations between highly dimensional data and multiple predictor variables - except RDA-forest relies on more versatile RF instead of linear regressions. 
 
-Major changes between v.2.6.1 and 2.9.2 (see [RDAForest News](https://docs.google.com/document/d/1Rho1cysbMXXXeFAzNCxGLB0tNqZuO4WlBgvCPj9F68c/edit?usp=sharing) for details):
+Major changes between v.2.6.1 and 2.9.2 (see [RDAForest News](https://docs.google.com/document/d/1-ZdIJ41b-1UvKRQqU-xBIhVFR21sNHkudhHVQtU3d2A/edit?usp=sharing) for details):
    - proper handling of situations where multiple individuals are sampled from the same site: using blocked resamplong during random forest building, or analyzing per-site genetic medians (*site.repeats* option in all model fitting functions);
-   - splitting model fitting and adaptation prediction into two functions (`ojFit` and `ojPredict` instead of the single `ordinationJackknife`) for proper calculation of genetic offsets;
+   -  `ordinationJackknife` now fits multiple environmental scenarios to the same model ensemble, for proper calculation of genetic offsets;
+   -  multi-core parallelization (*ncores* option) in `mtrySelJack` and `ordinationJackknife`;
    - no dependency on `extendedForest` and `gradientForest`.
 
 Big thanks to **Daniel "Danny" Hancock** for pointing out these problems and initiating changes.
@@ -30,9 +31,9 @@ In addition, there are two novel ideas in our RDA-forest method:
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_2.9.2.tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_2.9.7.tar.gz`. To install it, run this in Rstudio
 ```R
-install.packages("/path/to/downloaded/file/RDAforest_2.9.2.tar.gz")
+install.packages("/path/to/downloaded/file/RDAforest_2.9.7.tar.gz")
 library(RDAforest)
 ```
 
@@ -66,7 +67,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`Reselect`** : applies new criteria for choosing important predictors to a precomputed `mtrySelJack` object.
 - **`latlon2UTM`**, **`epsg.maker`**, **`bw_choose`** ,**`gen_offset`**,**`adapt_scale`** - various accessory functions.
 
-### Example analysis: [North American Wolves](https://z0on.github.io/RDA-forest/wolves_rendered_2.9.2.html)
+### Example analysis: [North American Wolves](https://z0on.github.io/RDA-forest/wolves_rendered.html)
 Download Rmarkdown script `RDAforest_wolves_v2.9.2.Rmd` and the dataset `wolf_v4.RData` to replicate this.
 
 ### Suggested readings
