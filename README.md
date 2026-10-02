@@ -5,10 +5,12 @@
 
 RDA forest is a way to detect associations between principal components of a response matrx *Y* and a matrix of potential explanatory variables *X*. Essentially, the method looks for clusters, extensions, and bumps in the multivariate cloud of data points that can be explained by any combination of variables in *X* (including all sorts of non-linear dependencies and multi-way interactions). We call this approach RDAforest, to reflect the fact that it has the same purpose as redundancy analysis (RDA) - to find associations between highly dimensional data and multiple predictor variables - except RDA-forest relies on more versatile RF instead of linear regressions. 
 
-Major changes between v.2.6.1 and 2.9.9 (see [RDAForest News](https://docs.google.com/document/d/1X7e_KWmaKG1fxEX24MmfTqddRicWlJTL9YD0653UmjY/edit?usp=sharing) for details):
+Major changes between v.2.6.1 and 2.11.0 (see [RDAForest News](https://z0on.github.io/RDA-forest/RDAforest_news.html) for details):
+   - fixed a bug affecting projection of out-of-bag samples during jackknifing;
    - proper handling of situations where multiple individuals are sampled from the same site: using blocked resamplong during random forest building, or analyzing per-site genetic medians (*site.repeats* option in all model fitting functions);
    -  `ordinationJackknife` now fits multiple environmental scenarios to the same model ensemble, for proper calculation of genetic offsets;
    -  multi-core parallelization (*ncores* option) in `mtrySelJack` and `ordinationJackknife`;
+   -  new ways of controlling the extension of predictions beyond the range of parameters used to build the model (*extra.npred*, *sigma*,*nn.max* options for `ordinationJackknife`)
    - no dependency on `extendedForest` and `gradientForest`.
 
 Big thanks to **Daniel "Danny" Hancock** for pointing out these problems and initiating changes.
@@ -31,13 +33,13 @@ In addition, there are two novel ideas in our RDA-forest method:
 
 ### Installation 
 
-The RDA-forest functions come in the form of an R package, `RDAforest_2.9.9.tar.gz`. To install it, run this in Rstudio
+The RDA-forest functions come in the form of an R package, `RDAforest_2.11.0.tar.gz`. To install it, run this in Rstudio
 ```R
-install.packages("/path/to/downloaded/file/RDAforest_2.9.9.tar.gz")
+install.packages("/path/to/downloaded/file/RDAforest_2.11.0.tar.gz")
 library(RDAforest)
 ```
 
-The package depends on `vegan` and `dplyr`. It does not depend on `extendedForest` or `gradientForest`anymore (since version 2.9.2); all the necessary functions from these packages have been recoded and included in the RDAforest package. 
+The package depends on `vegan` and `dplyr`. It does not depend on `extendedForest` or `gradientForest`anymore; all the necessary functions from these packages have been recoded and included in the RDAforest package. 
 
 
 ### RDAforest functions
@@ -55,6 +57,7 @@ All functions have documentation accessible as usual by asking `?functionName` i
 
 #### Minor/accessory functions:
 - **`dummify`** : Turns a dataframe containing numerical and categorical predictors into fully numerical.
+- **project_oob_pcoa** : projection of samples into PcOA ordination based on distances.
 - **`sum_up_importances`** : Sums up importances of original factors that were dummified using `dummify`.
 - **`plot_gf_turnovers`** : Plots turnover curves for a `gradientForest` model. Wrapper for `plot.gradientForest` *plot.type="Cumulative.Importance"*
 - **`plot_turnover`** : Plots turnover curve for the specific *X* predictor, based on *[result of `ordinationJackknife`]$predictions.turnover*. 
