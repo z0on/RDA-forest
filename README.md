@@ -9,8 +9,9 @@ Major changes between v.2.6.1 and 2.11.0 (see [RDAForest News](https://z0on.gith
    - fixed a bug affecting projection of out-of-bag samples during jackknifing;
    - proper handling of situations where multiple individuals are sampled from the same site: using blocked resamplong during random forest building, or analyzing per-site genetic medians (*site.repeats* option in all model fitting functions);
    -  `ordinationJackknife` now fits multiple environmental scenarios to the same model ensemble, for proper calculation of genetic offsets;
+   -  new ways of controlling the extension of predictions beyond the range of parameters used to build the model (*extra.npred*, *sigma*,*nn.max* options for `ordinationJackknife`);
+   -  `lfmmClean` function to remove neutral genetic sgtructure that is not aligned with envrionmental gradients;
    -  multi-core parallelization (*ncores* option) in `mtrySelJack` and `ordinationJackknife`;
-   -  new ways of controlling the extension of predictions beyond the range of parameters used to build the model (*extra.npred*, *sigma*,*nn.max* options for `ordinationJackknife`)
    - no dependency on `extendedForest` and `gradientForest`.
 
 Big thanks to **Daniel "Danny" Hancock** for pointing out these problems and initiating changes.
@@ -54,10 +55,11 @@ All functions have documentation accessible as usual by asking `?functionName` i
 - **`ojPredict`** : predicts adaptation for a new environmental scenario based on pre-fitted models (`ordinationJackknife` with option *keep.models=TRUE*). Can be run in parallel mode with *ncores* option.
 - **`env_mismatch`** : calculates maladaptation across the landscape for a given set of genetic PCs. Can be used for assisted gene flow planning (find locations that best match required future genetic PCs now), or for finding most suitable environment for an individual based on its genotype.
 - **`importance_RDAforest`** : Recalculates R2-based importances stored in the `gradientForest` model into proportion of variation attributable to each predictor (takes into account eigenvalues of the ordination that was analyzed).
+- **`lfmmClean`** : detects and removes residual genetic structure that is not aligned with environmental variables, based on latent factor model.
 
 #### Minor/accessory functions:
 - **`dummify`** : Turns a dataframe containing numerical and categorical predictors into fully numerical.
-- **project_oob_pcoa** : projection of samples into PcOA ordination based on distances.
+- **`project_oob_pcoa`** : projection of samples into PcOA ordination based on distances.
 - **`sum_up_importances`** : Sums up importances of original factors that were dummified using `dummify`.
 - **`plot_gf_turnovers`** : Plots turnover curves for a `gradientForest` model. Wrapper for `plot.gradientForest` *plot.type="Cumulative.Importance"*
 - **`plot_turnover`** : Plots turnover curve for the specific *X* predictor, based on *[result of `ordinationJackknife`]$predictions.turnover*. 
